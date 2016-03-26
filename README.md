@@ -27,6 +27,7 @@ Go to https://extensions.gnome.org/ and install it from there.
 * Enable the extension, either:
   * Use `gnome-tweak-tool` if you have it installed (go to **Extensions** item); or
   * Use the command line: `gnome-shell-extension-tool -e timezone@jwendell.gnome.org`
+
 # Configuration
 
 Add a `people.json` file in your home directory in the following format:

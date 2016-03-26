@@ -19,7 +19,7 @@ const TimezoneIndicator = new Lang.Class({
     Extends: PanelMenu.Button,
 
     _init: function(){
-    this.parent(0.0, _("Timezone Indicator"));
+    this.parent(0.5, _("Timezone Indicator"));
 
     this._timezones = [];
 

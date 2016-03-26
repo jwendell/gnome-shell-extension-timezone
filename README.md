@@ -49,3 +49,7 @@ Add a `people.json` file in your home directory in the following format:
 ```
 Timezone codes for the `tz` field can be found [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
+**NOTE**: Every time you modify people.json file you need to restart gnome shell
+`(ALT-F2 + r <ENTER>)` in order to changes take effect. This will be fixed
+[soon](https://github.com/jwendell/gnome-shell-extension-timezone/issues/3).
+

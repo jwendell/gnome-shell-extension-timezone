@@ -1,0 +1,40 @@
+
+.tzi-tz-topCity {
+    font-size: 9pt;
+}
+
+.tzi-tz-offset {
+    font-size: 8pt;
+    margin-bottom:10px;
+}
+
+.tzi-time-label {
+    font-weight: bold;
+    color: white
+}
+
+.tzi-time-label-system {
+    background-color: #215d9c;
+    border-radius: 5px;
+    padding-right: 3px;
+    padding-left: 3px;
+}
+
+.tzi-avatar-name-box {
+    background-color: #393f3f;
+    font-size: 8pt;
+}
+
+.tzi-avatar-name {
+    font-weight: bold;
+}
+
+.tzi-avatar-main-box {
+    border-radius: 35px;
+    background-size: contain;
+    margin-bottom: 10px;
+}
+
+.tz1-people-box {
+    spacing: 30px;
+}

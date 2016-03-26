@@ -34,5 +34,5 @@ Add a `people.json` file in your home directory in the following format:
   }
 ]
 ```
-Timezone codes for the `tz` field can be found [here](http://momentjs.com/timezone/).
+Timezone codes for the `tz` field can be found [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 

@@ -22,11 +22,11 @@ Go to https://extensions.gnome.org/ and install it from there.
 
 ### Other way:
 * Clone this [repo](https://github.com/jwendell/gnome-shell-extension-timezone.git) or download the [zip](https://github.com/jwendell/gnome-shell-extension-timezone/archive/master.zip)
-* Copy or move or symlink the downloaded/cloned dir to `~/.local/share/gnome-shell/extensions/timezone@jwendell.gnome.org`.
-  * `timezone@jwendell.gnome.org` Must be the name of the directory, otherwise the extension will not be loaded.
+* Copy or move or symlink the downloaded/cloned dir to `~/.local/share/gnome-shell/extensions/timezone@jwendell`.
+  * `timezone@jwendell` Must be the name of the directory, otherwise the extension will not be loaded.
 * Enable the extension, either:
   * Use `gnome-tweak-tool` if you have it installed (go to **Extensions** item); or
-  * Use the command line: `gnome-shell-extension-tool -e timezone@jwendell.gnome.org`
+  * Use the command line: `gnome-shell-extension-tool -e timezone@jwendell`
 
 # Configuration
 

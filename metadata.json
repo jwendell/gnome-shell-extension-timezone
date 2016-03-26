@@ -1,6 +1,6 @@
 {
 	"shell-version": ["3.18"],
-	"uuid": "timezone@jwendell.gnome.org",
+	"uuid": "timezone@jwendell",
 	"description": "See people with their timezones from the Shell",
 	"name": "Timezone",
 	"settings-schema": "org.gnome.shell.extensions.timezone",

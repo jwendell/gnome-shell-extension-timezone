@@ -11,6 +11,7 @@ const Avatar = new Lang.Class({
 
     _init: function(person, params) {
         this._person = person;
+        this._hasAvatar = this._person.avatar !== undefined && this._person.avatar !== '';
         params = Params.parse(params, { reactive: true,
                                         iconSize: AVATAR_ICON_SIZE});
         this._iconSize = params.iconSize;
@@ -25,18 +26,22 @@ const Avatar = new Lang.Class({
                                   style_class: 'tzi-avatar-main-box' });
 
         this._createPersonWidget();
-        this.actor.connect('enter-event', Lang.bind(this, this._onEnterEvent));
-        this.actor.connect('leave-event', Lang.bind(this, this._onLeaveEvent));
+        if (this._hasAvatar) {
+            this.actor.connect('enter-event', Lang.bind(this, this._onEnterEvent));
+            this.actor.connect('leave-event', Lang.bind(this, this._onLeaveEvent));
+        }
 
         GLib.idle_add(GLib.PRIORITY_DEFAULT, Lang.bind(this, function() {
-            this.actor.style = 'background-image: url("%s");'.format(this._person.avatar);
+            if (this._hasAvatar)
+                this.actor.style = 'background-image: url("%s");'.format(this._person.avatar);
             return GLib.SOURCE_REMOVE;
         }));
     },
 
     _createPersonWidget: function() {
-        this.actor.add(new St.Bin(), {expand: true});
-        this._detailBox = new St.BoxLayout({visible: false, vertical: true, style_class: 'tzi-avatar-name-box'});
+        let child = this._hasAvatar ? new St.Bin() : new St.Icon({ icon_name: 'avatar-default-symbolic'});
+        this.actor.add(child, {expand: true});
+        this._detailBox = new St.BoxLayout({visible: !this._hasAvatar, vertical: true, style_class: 'tzi-avatar-name-box'});
         this.actor.add(this._detailBox, {x_fill: true});
 
         let name = new St.Label({text: this._person.name, style_class: 'tzi-avatar-name'});

@@ -13,7 +13,7 @@ file manually.
 
 # Versions supported
 
-It has been tested against GNOME Shell 3.18.
+It has been tested against GNOME Shell 3.18 and 3.20.
 
 # Install
 ### Easy way

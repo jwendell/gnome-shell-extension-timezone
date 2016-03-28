@@ -50,6 +50,9 @@ function _generateNiceOffset(offset) {
 
 function getTimezones() {
     let people = People.getPeople();
+    if (people.error)
+        return people;
+
     let localOffset = GLib.DateTime.new_now_local().get_utc_offset() / (3600*1000*1000);
 
     var timezones = people.reduce(function(zones, person) {

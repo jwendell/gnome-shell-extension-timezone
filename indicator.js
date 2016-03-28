@@ -48,25 +48,29 @@ const TimezoneIndicator = new Lang.Class({
         let timezones = Timezone.getTimezones();
         let mainBox = new St.BoxLayout({style_class: 'tz1-people-box'});
 
-        timezones.forEach(Lang.bind(this, function(tz) {
-        	let tzBox = new St.BoxLayout({vertical: true, width: 70});
-        	mainBox.add(tzBox);
-        	let timeLabel = new St.Label({style_class: 'tzi-time-label'});
-        	if (tz.sameAsSystem)
-        	    timeLabel.style_class += ' tzi-time-label-system';
-        	this._timezones.push({tz: tz.tz1, label: timeLabel});
+        if (timezones.error) {
+            mainBox.add(new St.Label({text: timezones.error}));
+        } else {
+            timezones.forEach(Lang.bind(this, function(tz) {
+                let tzBox = new St.BoxLayout({vertical: true, width: 70});
+                mainBox.add(tzBox);
+                let timeLabel = new St.Label({style_class: 'tzi-time-label'});
+                if (tz.sameAsSystem)
+                    timeLabel.style_class += ' tzi-time-label-system';
+                this._timezones.push({tz: tz.tz1, label: timeLabel});
 
-        	tzBox.add(timeLabel, {x_align: St.Align.START, x_fill: false});
-        	tzBox.add(new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity'}));
-        	tzBox.add(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset'}));
+                tzBox.add(timeLabel, {x_align: St.Align.START, x_fill: false});
+                tzBox.add(new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity'}));
+                tzBox.add(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset'}));
 
-        	tz.people.forEach(function(person) {
-        	  let iconBin = new St.Bin();
-        	  let avatar = new Avatar.Avatar(person);
-        	  iconBin.child = avatar.actor;
-        	  tzBox.add(iconBin, {x_align: St.Align.START, x_fill: false});
-        	});
-        }));
+                tz.people.forEach(function(person) {
+                  let iconBin = new St.Bin();
+                  let avatar = new Avatar.Avatar(person);
+                  iconBin.child = avatar.actor;
+                  tzBox.add(iconBin, {x_align: St.Align.START, x_fill: false});
+                });
+            }));
+        }
 
         this._item.actor.add_actor(mainBox);
     }

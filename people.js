@@ -28,11 +28,16 @@ function _parsePeopleFile() {
     let contents, success, tag, people;
     try {
     	[success, contents, tag] = f.load_contents(null);
+    } catch (e) {
+        log('Error parsing %s: %s'.format(path, e));
+        return {error: 'Make sure to put a file "people.json" in your home directory'};
+    }
+
+    try {
         people = JSON.parse(contents);
     } catch (e) {
         log('Error parsing %s: %s'.format(path, e));
-        log('Using default people file');
-        people = [];
+        return {error: 'There was an error parsing people.json file'};
     }
 
     return people;
@@ -40,8 +45,10 @@ function _parsePeopleFile() {
 
 function getPeople() {
     let people = _parsePeopleFile();
-    people.forEach(_insertDateTime);
-    people.sort(_sortByTimezone);
+    if (!people.error) {
+        people.forEach(_insertDateTime);
+        people.sort(_sortByTimezone);
+    }
 
     return people;
 }

@@ -17,16 +17,16 @@ It has been tested against GNOME Shell 3.18.
 
 # Install
 ### Easy way
-Go to https://extensions.gnome.org/ and install it from there.  
-**NOTE: This is not yet available.**
+Go to [GNOME Extensions page](https://extensions.gnome.org/extension/1060/timezone/) and install it from there.
+
 
 ### Other way:
-* Clone this [repo](https://github.com/jwendell/gnome-shell-extension-timezone.git) or download the [zip](https://github.com/jwendell/gnome-shell-extension-timezone/archive/master.zip)
-* Copy or move or symlink the downloaded/cloned dir to `~/.local/share/gnome-shell/extensions/timezone@jwendell`.
-  * `timezone@jwendell` Must be the name of the directory, otherwise the extension will not be loaded.
-* Enable the extension, either:
-  * Use `gnome-tweak-tool` if you have it installed (go to **Extensions** item); or
-  * Use the command line: `gnome-shell-extension-tool -e timezone@jwendell`
+```sh
+$ mkdir -p ~/.local/share/gnome-shell/extensions
+$ git clone https://github.com/jwendell/gnome-shell-extension-timezone.git ~/.local/share/gnome-shell/extensions/timezone@jwendell
+$ gnome-shell-extension-tool -e timezone@jwendell
+```
+If it doesn't appear near to the clock, try restarting the shell: `(ALT-F2 + r <ENTER>)`
 
 # Configuration
 

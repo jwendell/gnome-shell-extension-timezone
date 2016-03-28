@@ -22,7 +22,7 @@ const TimezoneIndicator = new Lang.Class({
     this.parent(0.5, _("Timezone Indicator"));
 
     this._timezone = new Timezone.Timezone;
-    this._timezones = [];
+    this._timezone.connect('changed', Lang.bind(this, this._createUI));
 
     this._icon = new St.Icon({ icon_name: 'gnome-clocks-symbolic', style_class: 'system-status-icon' });
     this.actor.add_actor(this._icon);
@@ -35,7 +35,6 @@ const TimezoneIndicator = new Lang.Class({
 
     this._clock = new GnomeDesktop.WallClock();
     this._clock.connect('notify::clock', Lang.bind(this, this._updateTimezones));
-    this._updateTimezones();
     },
 
     _updateTimezones: function() {
@@ -46,15 +45,19 @@ const TimezoneIndicator = new Lang.Class({
     },
 
     _createUI: function() {
-        let timezones = this._timezone.getTimezones();
-        let mainBox = new St.BoxLayout({style_class: 'tz1-people-box'});
+        if (this._mainBox)
+            this._item.actor.remove_actor(this._mainBox);
+        this._mainBox = new St.BoxLayout({style_class: 'tz1-people-box'});
 
+        this._timezones = [];
+
+        let timezones = this._timezone.getTimezones();
         if (timezones.error) {
-            mainBox.add(new St.Label({text: timezones.error}));
+            this._mainBox.add(new St.Label({text: timezones.error}));
         } else {
             timezones.forEach(Lang.bind(this, function(tz) {
                 let tzBox = new St.BoxLayout({vertical: true, width: 70});
-                mainBox.add(tzBox);
+                this._mainBox.add(tzBox);
                 let timeLabel = new St.Label({style_class: 'tzi-time-label'});
                 if (tz.sameAsSystem)
                     timeLabel.style_class += ' tzi-time-label-system';
@@ -73,7 +76,8 @@ const TimezoneIndicator = new Lang.Class({
             }));
         }
 
-        this._item.actor.add_actor(mainBox);
+        this._item.actor.add_actor(this._mainBox);
+        this._updateTimezones();
     }
 });
 

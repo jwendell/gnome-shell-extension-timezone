@@ -1,6 +1,7 @@
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const Lang = imports.lang;
+const Signals = imports.signals;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -12,6 +13,13 @@ const People = new Lang.Class({
     _init: function() {
         this._path = GLib.build_filenamev([GLib.get_home_dir(), 'people.json']);
         this._file = Gio.file_new_for_path(this._path);
+
+        this._monitor = this._file.monitor(Gio.FileMonitorFlags.NONE, null);
+        this._monitor.connect('changed',
+                    Lang.bind(this, function(a, b, c, d) {
+                        if (d != 1) return;
+                        this.emit('changed');
+                    }));
     },
 
     _sortByTimezone: function(a, b) {
@@ -60,3 +68,4 @@ const People = new Lang.Class({
     }
 
 });
+Signals.addSignalMethods(People.prototype);

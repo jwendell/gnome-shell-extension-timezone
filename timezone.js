@@ -1,5 +1,6 @@
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
+const Signals = imports.signals;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -54,6 +55,9 @@ const Timezone = new Lang.Class({
 
     _init: function() {
         this._people = new People.People;
+        this._people.connect('changed', Lang.bind(this, function() {
+            this.emit('changed');
+        }));
     },
 
     getTimezones: function() {
@@ -90,3 +94,4 @@ const Timezone = new Lang.Class({
         return timezones;
     }
 });
+Signals.addSignalMethods(Timezone.prototype);

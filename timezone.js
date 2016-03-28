@@ -1,4 +1,5 @@
 const GLib = imports.gi.GLib;
+const Lang = imports.lang;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -34,50 +35,58 @@ function _generateNiceOffset(offset) {
     let m = 60 * (absOffset - h);
 
     if (h < 10)
-      h = '0' + h;
+        h = '0' + h;
     if (m < 10)
-      m = '0' + m;
+        m = '0' + m;
 
     let r = h + ':' + m;
 
     if (offset < 0)
-      r = '-' + r;
+        r = '-' + r;
     else
-      r = '+' + r;
+        r = '+' + r;
 
     return r;
 }
 
-function getTimezones() {
-    let people = People.getPeople();
-    if (people.error)
-        return people;
+const Timezone = new Lang.Class({
+    Name: 'Timezone',
 
-    let localOffset = GLib.DateTime.new_now_local().get_utc_offset() / (3600*1000*1000);
+    _init: function() {
+        this._people = new People.People;
+    },
 
-    var timezones = people.reduce(function(zones, person) {
-        let last = zones[ zones.length - 1 ];
-        let offset = last ? last.offset : null;
+    getTimezones: function() {
+        let people = this._people.getPeople();
+        if (people.error)
+            return people;
 
-        if (last && offset === person.offset) {
-            last.people.push(person);
-        } else {
-            zones.push({
-                tz: person.tz,
-                tz1: person.tz1,
-                offset: person.offset,
-                niceOffset: _generateNiceOffset(person.offset),
-                people: [ person ],
-                sameAsSystem: person.offset == localOffset
-            });
-        }
+        let localOffset = GLib.DateTime.new_now_local().get_utc_offset() / (3600*1000*1000);
 
-        return zones;
-    }, []);
+        var timezones = people.reduce(function(zones, person) {
+            let last = zones[ zones.length - 1 ];
+            let offset = last ? last.offset : null;
 
-    timezones.forEach(function(timezone){
-        _updateTopCity(timezone);
-    });
+            if (last && offset === person.offset) {
+                last.people.push(person);
+            } else {
+                zones.push({
+                    tz: person.tz,
+                    tz1: person.tz1,
+                    offset: person.offset,
+                    niceOffset: _generateNiceOffset(person.offset),
+                    people: [ person ],
+                    sameAsSystem: person.offset == localOffset
+                });
+            }
 
-    return timezones;
-}
+            return zones;
+        }, []);
+
+        timezones.forEach(function(timezone){
+            _updateTopCity(timezone);
+        });
+
+        return timezones;
+    }
+});

@@ -21,6 +21,7 @@ const TimezoneIndicator = new Lang.Class({
     _init: function(){
     this.parent(0.5, _("Timezone Indicator"));
 
+    this._timezone = new Timezone.Timezone;
     this._timezones = [];
 
     this._icon = new St.Icon({ icon_name: 'gnome-clocks-symbolic', style_class: 'system-status-icon' });
@@ -45,7 +46,7 @@ const TimezoneIndicator = new Lang.Class({
     },
 
     _createUI: function() {
-        let timezones = Timezone.getTimezones();
+        let timezones = this._timezone.getTimezones();
         let mainBox = new St.BoxLayout({style_class: 'tz1-people-box'});
 
         if (timezones.error) {

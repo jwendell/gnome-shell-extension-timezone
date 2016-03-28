@@ -4,5 +4,5 @@
 	"description": "See people with their timezones from the Shell",
 	"name": "Timezone",
 	"settings-schema": "org.gnome.shell.extensions.timezone",
-	"version:": "0.9"
+	"url": "https://github.com/jwendell/gnome-shell-extension-timezone"
 }

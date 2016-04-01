@@ -41,11 +41,17 @@ Add a `people.json` file in your home directory in the following format:
   },
   {
     "name": "Niel",
-    "avatar": "https://d389zggrogs7qo.cloudfront.net/images/team/niel.jpg",
+    "gravatar": "niel@example.com",
     "city": "Cape Town",
     "tz": "Africa/Johannesburg"
   }
 ]
 ```
 Timezone codes for the `tz` field can be found [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+
+Photos can be provided through 2 fields:
+- `gravatar`: Supply the email address registered at gravatar.com or libravatar.org
+  - **_Niel_** in the example above
+- `avatar`: Supply directly the URL of the image
+  - **_Dan_** in the example above
 

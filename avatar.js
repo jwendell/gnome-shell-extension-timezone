@@ -3,8 +3,11 @@ const Params = imports.misc.params;
 const Clutter = imports.gi.Clutter;
 const Lang = imports.lang;
 const GLib = imports.gi.GLib;
+const Soup = imports.gi.Soup;
 
 const AVATAR_ICON_SIZE = 70;
+
+const _httpSession = new Soup.Session({user_agent: 'curl/7.43.0'});
 
 const Avatar = new Lang.Class({
     Name: 'Avatar',
@@ -13,7 +16,8 @@ const Avatar = new Lang.Class({
         this._person = person;
         this._hasAvatar = (this._person.avatar !== undefined && this._person.avatar.trim() !== '');
         this._hasGravatar = (this._person.gravatar !== undefined && this._person.gravatar.trim() !== '');
-        this._hasPicture = this._hasAvatar || this._hasGravatar;
+        this._hasGithub = (this._person.github !== undefined && this._person.github.trim() !== '');
+        this._hasPicture = this._hasAvatar || this._hasGravatar || this._hasGithub;
 
         params = Params.parse(params, { reactive: true,
                                         iconSize: AVATAR_ICON_SIZE});
@@ -47,8 +51,15 @@ const Avatar = new Lang.Class({
             url = this._person.avatar.trim();
         } else if (this._hasGravatar) {
             url = this._getGravatarURL();
+        } else if (this._hasGithub) {
+            url = this._getGithubURL(this._setAvatar);
+            return;
         }
 
+        this._setAvatar(url);
+    },
+
+    _setAvatar: function(url) {
         this.actor.style = 'background-image: url("%s");'.format(url);
     },
 
@@ -58,6 +69,23 @@ const Avatar = new Lang.Class({
         let url = 'http://cdn.libravatar.org/avatar/' + hash;
 
         return url;
+    },
+
+    _getGithubURL: function(callback) {
+        let github_api = 'https://api.github.com/users/%s'.format(
+            this._person.github)
+        let message = new Soup.Message({method: 'GET', uri: new Soup.URI(github_api)});
+
+        _httpSession.queue_message(message, function(session, message) {
+            if (message.status_code != Soup.KnownStatusCode.OK) {
+                log('Error: ' + message.status_code.toString());
+                log('got: ' + message.response_body.data);
+            }
+            else {
+                let p = JSON.parse(message.response_body.data);
+                callback(null, p.avatar_url);
+            }
+        });
     },
 
     _createPersonWidget: function() {

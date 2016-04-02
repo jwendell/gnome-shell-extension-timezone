@@ -59,6 +59,10 @@ const Avatar = new Lang.Class({
             url = this._getGravatarURL();
         }
 
+        this._setAvatar(url);
+    },
+
+    _setAvatar: function(url) {
         this.actor.style = 'background-image: url("%s");'.format(url);
     },
 

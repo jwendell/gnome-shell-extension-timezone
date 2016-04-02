@@ -44,14 +44,21 @@ Add a `people.json` file in your home directory in the following format:
     "gravatar": "niel@example.com",
     "city": "Cape Town",
     "tz": "Africa/Johannesburg"
+  },
+  {
+    "github": "torvalds",
+    "tz": "America/Los_Angeles"
   }
 ]
 ```
 Timezone codes for the `tz` field can be found [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
-Photos can be provided through 2 fields:
+Photos can be provided through 3 fields:
 - `gravatar`: Supply the email address registered at gravatar.com or libravatar.org
   - **_Niel_** in the example above
 - `avatar`: Supply directly the URL of the image
   - **_Dan_** in the example above
+- `github`: Supply Github username. See Github account below
+  - **_Torvalds_** in the example above
 
+Name, avatar and city can be fetched from github account. If **_github_** is provided it will overwrite name, avatar and city fields.

@@ -11,8 +11,6 @@ const Avatar = new Lang.Class({
     Name: 'Avatar',
 
     _init: function(person, params) {
-        this._httpSession = new Soup.Session({user_agent: 'curl/7.43.0'});
-
         this._person = person;
         this._person.name = this._person.name !== undefined ? this._person.name : "";
         this._person.city = this._person.city !== undefined ? this._person.city : "";
@@ -20,6 +18,7 @@ const Avatar = new Lang.Class({
         this._hasAvatar = (this._person.avatar !== undefined && this._person.avatar.trim() !== '');
         this._hasGravatar = (this._person.gravatar !== undefined && this._person.gravatar.trim() !== '');
         this._hasGithub = (this._person.github !== undefined && this._person.github.trim() !== '');
+
         this._hasPicture = this._hasAvatar || this._hasGravatar || this._hasGithub;
 
         params = Params.parse(params, { reactive: true,
@@ -42,9 +41,6 @@ const Avatar = new Lang.Class({
         }
 
         this._setBackgroundImage();
-        if (this._hasGithub) {
-            this._setGithubData();
-        }
     },
 
     _setBackgroundImage: function() {
@@ -57,9 +53,12 @@ const Avatar = new Lang.Class({
             url = this._person.avatar.trim();
         } else if (this._hasGravatar) {
             url = this._getGravatarURL();
+        } else if (this._hasGithub) {
+            this._setGithubData();
         }
 
-        this.actor.style = 'background-image: url("%s");'.format(url);
+        if (url)
+            this.actor.style = 'background-image: url("%s");'.format(url);
     },
 
     _getGravatarURL: function() {
@@ -71,20 +70,29 @@ const Avatar = new Lang.Class({
     },
 
     _setGithubData: function() {
-        let github_api = 'https://api.github.com/users/%s'.format(
-            this._person.github)
+        if (!this._hasGithub)
+            return;
+
+        let _httpSession = new Soup.Session({user_agent: 'curl/7.43.0'});
+        let github_api = 'https://api.github.com/users/%s'.format(this._person.github)
         let message = new Soup.Message({method: 'GET', uri: new Soup.URI(github_api)});
 
-        this._httpSession.queue_message(message, Lang.bind(this, function(session, message) {
+        _httpSession.queue_message(message, Lang.bind(this, function(session, message) {
             if (message.status_code != Soup.KnownStatusCode.OK) {
-                log('Error: ' + message.status_code.toString());
-                log('got: ' + message.response_body.data);
+                log('Error %d getting data from github. Got: %s'.format(message.status_code, message.response_body.data));
             }
             else {
-                let p = JSON.parse(message.response_body.data);
-                this.actor.style = 'background-image: url("%s");'.format(p.avatar_url);
-                this._name.text = p.name;
-                this._city.text = p.location;
+                try {
+                    let p = JSON.parse(message.response_body.data);
+                    if (p.avatar_url)
+                        this.actor.style = 'background-image: url("%s");'.format(p.avatar_url);
+                    if (p.name)
+                        this._nameLabel.text = p.name;
+                    if (p.location)
+                        this._cityLabel.text = p.location;
+                } catch (e) {
+                    log('Error parsing github response: %s'.format(e));
+                }
             }
         }));
     },
@@ -95,11 +103,11 @@ const Avatar = new Lang.Class({
         this._detailBox = new St.BoxLayout({visible: !this._hasPicture, vertical: true, style_class: 'tzi-avatar-name-box'});
         this.actor.add(this._detailBox, {x_fill: true});
 
-        this._name = new St.Label({text: this._person.name, style_class: 'tzi-avatar-name'});
-        this._detailBox.add(this._name, {expand: true, x_align: St.Align.MIDDLE, x_fill: false});
+        this._nameLabel = new St.Label({text: this._person.name, style_class: 'tzi-avatar-name'});
+        this._detailBox.add(this._nameLabel, {expand: true, x_align: St.Align.MIDDLE, x_fill: false});
 
-        this._city = new St.Label({text: this._person.city});
-        this._detailBox.add(this._city, {expand: true, x_align: St.Align.MIDDLE, x_fill: false});
+        this._cityLabel = new St.Label({text: this._person.city});
+        this._detailBox.add(this._cityLabel, {expand: true, x_align: St.Align.MIDDLE, x_fill: false});
     },
 
     _onEnterEvent: function(event) {

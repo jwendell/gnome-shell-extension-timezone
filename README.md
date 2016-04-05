@@ -51,14 +51,21 @@ Add a `people.json` file in your home directory in the following format:
   }
 ]
 ```
-Timezone codes for the `tz` field can be found [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+The only mandatory field is `tz`. Timezone codes are found [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
 Photos can be provided through 3 fields:
 - `gravatar`: Supply the email address registered at gravatar.com or libravatar.org
   - **_Niel_** in the example above
 - `avatar`: Supply directly the URL of the image
   - **_Dan_** in the example above
-- `github`: Supply Github username. See Github account below
-  - **_Torvalds_** in the example above
+- `github`: Supply a GitHub username.
+  - **_torvalds_** in the example above
 
-Name, avatar and city can be fetched from github account. If **_github_** is provided it will overwrite name, avatar and city fields.
+Instead of filling individual fields you can supply a **GitHub** username. Then
+we try to get user's avatar, name and city from there. Still, we need the `tz`
+field. GitHub doesn't provide one for us. See **_torvalds_** in the example above.
+(Hopefully this might [change in the future](https://github.com/jwendell/gnome-shell-extension-timezone/issues/13)).
+
+Individual fields have preference over remote providers. For instance, if you fill
+the fields `name` and `github`, we will use the name you provided, not the github
+one (although we still use github to fetch other data, like avatar and city).

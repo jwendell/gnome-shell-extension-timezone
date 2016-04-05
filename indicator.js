@@ -11,7 +11,7 @@ const GnomeDesktop = imports.gi.GnomeDesktop;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const Timezone = Me.imports.timezone;
+const World = Me.imports.world;
 const Avatar = Me.imports.avatar;
 
 const TimezoneIndicator = new Lang.Class({
@@ -21,8 +21,8 @@ const TimezoneIndicator = new Lang.Class({
     _init: function(){
     this.parent(0.5, _("Timezone Indicator"));
 
-    this._timezone = new Timezone.Timezone;
-    this._timezone.connect('changed', Lang.bind(this, this._createUI));
+    this._world = new World.World;
+    this._world.connect('changed', Lang.bind(this, this._createUI));
 
     this._icon = new St.Icon({ icon_name: 'gnome-clocks-symbolic', fallback_icon_name: 'org.gnome.clocks-symbolic', style_class: 'system-status-icon' });
     this.actor.add_actor(this._icon);
@@ -51,7 +51,7 @@ const TimezoneIndicator = new Lang.Class({
 
         this._timezones = [];
 
-        let timezones = this._timezone.getTimezones();
+        let timezones = this._world.getTimezones();
         if (timezones.error) {
             this._mainBox.add(new St.Label({text: timezones.error}));
         } else {
@@ -64,10 +64,16 @@ const TimezoneIndicator = new Lang.Class({
                 this._timezones.push({tz: tz.tz1, label: timeLabel});
 
                 tzBox.add(timeLabel, {x_align: St.Align.START, x_fill: false});
-                tzBox.add(new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity'}));
+
+                tz.topCityLabel = new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity'});
+                tzBox.add(tz.topCityLabel);
+                tz.connect('changed', Lang.bind(this, function() {
+                    tz.topCityLabel.text = tz.topCity;
+                }));
+
                 tzBox.add(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset'}));
 
-                tz.people.forEach(function(person) {
+                tz.getPeople().forEach(function(person) {
                   let iconBin = new St.Bin();
                   let avatar = new Avatar.Avatar(person);
                   iconBin.child = avatar.actor;

@@ -5,7 +5,7 @@ const Signals = imports.signals;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const Convenience = Me.imports.convenience;
+const Person = Me.imports.person;
 
 const People = new Lang.Class({
     Name: 'People',
@@ -32,12 +32,6 @@ const People = new Lang.Class({
         return 0;
     },
 
-    _insertDateTime: function(person) {
-        person.tz1 = GLib.TimeZone.new(person.tz);
-        person.now = GLib.DateTime.new_now(person.tz1);
-        person.offset = person.now.get_utc_offset() / (3600*1000*1000);
-    },
-
     _parsePeopleFile: function() {
         let contents, success, tag, people;
         try {
@@ -58,11 +52,15 @@ const People = new Lang.Class({
     },
 
     getPeople: function() {
-        let people = this._parsePeopleFile();
-        if (!people.error) {
-            people.forEach(this._insertDateTime);
-            people.sort(this._sortByTimezone);
-        }
+        let rawPeople = this._parsePeopleFile();
+        if (rawPeople.error)
+            return rawPeople;
+
+        let people = [];
+        rawPeople.forEach(function(person) {
+            people.push(new Person.Person(person));
+        });
+        people.sort(this._sortByTimezone);
 
         return people;
     }

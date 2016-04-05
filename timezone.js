@@ -6,26 +6,6 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const People = Me.imports.people;
 
-function _updateTopCity(timezone) {
-    let count = {};
-    timezone.people.forEach(function(person) {
-        if (count[person.city] === undefined)
-            count[person.city] = 1;
-        else
-            count[person.city]++;
-    });
-
-    let result = '', m = 0;
-    for (let city in count) {
-        if (count[city] > m) {
-            m = count[city];
-            result = city;
-        }
-    }
-
-    timezone.topCity = result;
-}
-
 Math.trunc = Math.trunc || function(x) {
     return x < 0 ? Math.ceil(x) : Math.floor(x);
 }
@@ -53,45 +33,51 @@ function _generateNiceOffset(offset) {
 const Timezone = new Lang.Class({
     Name: 'Timezone',
 
-    _init: function() {
-        this._people = new People.People;
-        this._people.connect('changed', Lang.bind(this, function() {
+    _init: function(params) {
+        this._people = [];
+        this.topCity = '';
+        this.tz = params.tz;
+        this.tz1 = params.tz1;
+        this.offset = params.offset;
+        this.niceOffset= _generateNiceOffset(this.offset);
+
+        let localOffset = GLib.DateTime.new_now_local().get_utc_offset() / (3600*1000*1000);
+        this.sameAsSystem = this.offset == localOffset;
+    },
+
+    _updateTopCity: function() {
+        let count = {};
+        this._people.forEach(function(person) {
+            if (count[person.city] === undefined)
+                count[person.city] = 1;
+            else
+                count[person.city]++;
+        });
+
+        let result = '', m = 0;
+        for (let city in count) {
+            if (count[city] > m) {
+                m = count[city];
+                result = city;
+            }
+        }
+
+        this.topCity = result;
+    },
+
+    addPerson: function(person) {
+        this._people.push(person);
+        this._updateTopCity();
+
+        person.connect('changed', Lang.bind(this, function() {
+            this._updateTopCity();
             this.emit('changed');
         }));
     },
 
-    getTimezones: function() {
-        let people = this._people.getPeople();
-        if (people.error)
-            return people;
-
-        let localOffset = GLib.DateTime.new_now_local().get_utc_offset() / (3600*1000*1000);
-
-        var timezones = people.reduce(function(zones, person) {
-            let last = zones[ zones.length - 1 ];
-            let offset = last ? last.offset : null;
-
-            if (last && offset === person.offset) {
-                last.people.push(person);
-            } else {
-                zones.push({
-                    tz: person.tz,
-                    tz1: person.tz1,
-                    offset: person.offset,
-                    niceOffset: _generateNiceOffset(person.offset),
-                    people: [ person ],
-                    sameAsSystem: person.offset == localOffset
-                });
-            }
-
-            return zones;
-        }, []);
-
-        timezones.forEach(function(timezone){
-            _updateTopCity(timezone);
-        });
-
-        return timezones;
+    getPeople: function() {
+        return this._people;
     }
+
 });
 Signals.addSignalMethods(Timezone.prototype);

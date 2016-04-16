@@ -1,0 +1,9 @@
+<schemalist gettext-domain="gnome-shell-extensions">
+	<schema id="org.gnome.shell.extensions.timezone" path="/org/gnome/shell/extensions/timezone/">
+		<key name="path-to-people-json" type="s">
+			<default>""</default>
+			<summary>Path to people.json file</summary>
+			<description>Defaults to ~/people.json. You can put remote files here, like http://domain.com/people.json</description>
+		</key>
+	</schema>
+</schemalist>

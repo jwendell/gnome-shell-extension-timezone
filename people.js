@@ -6,13 +6,15 @@ const Signals = imports.signals;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Person = Me.imports.person;
+const Convenience = Me.imports.convenience;
 
 const People = new Lang.Class({
     Name: 'People',
 
     _init: function() {
-        this._path = GLib.build_filenamev([GLib.get_home_dir(), 'people.json']);
-        this._file = Gio.file_new_for_path(this._path);
+        this._settings = Convenience.getSettings();
+        this._path = this._getFilename();
+        this._file = Gio.file_new_for_uri(this._path);
 
         this._monitor = this._file.monitor(Gio.FileMonitorFlags.NONE, null);
         this._monitor.connect('changed',
@@ -20,6 +22,14 @@ const People = new Lang.Class({
                         if (d != 1) return;
                         this.emit('changed');
                     }));
+    },
+
+    _getFilename: function() {
+        let f = this._settings.get_string("path-to-people-json").trim();
+        if (f == "")
+            f = "file://" + GLib.build_filenamev([GLib.get_home_dir(), 'people.json']);
+
+        return f;
     },
 
     _sortByTimezone: function(a, b) {

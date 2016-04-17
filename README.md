@@ -4,12 +4,7 @@ Timezone is an extension for GNOME Shell aimed at helping remote teams by making
 it easier to see where and **when** their coworkers are. It's inspired on 
 **[Timezone.io](http://timezone.io)** .
 
-![Screenshot](https://dl.dropboxusercontent.com/s/xkwsfafitt17598/s1.png)
-
-# Status
-
-It's in a very early stage but it's working, although you have to edit config
-file manually.
+![Screenshot](https://dl.dropboxusercontent.com/s/pmbc9psvmd97f4j/s2.png)
 
 # Versions supported
 
@@ -30,7 +25,9 @@ If it doesn't appear near to the clock, try restarting the shell: `(ALT-F2 + r <
 
 # Configuration
 
-Add a `people.json` file in your home directory in the following format:
+You need a `people.json` file. By default we look for this file at your home directory. You can use a different path if you want. Just go to the preferences dialog. You can even use a remote location for this file (e.g.: https://domain.com/my-team/people.json). This way a whole team can share the `people.json` file.
+
+The format of `people.json` file is the following:
 ```json
 [
   {

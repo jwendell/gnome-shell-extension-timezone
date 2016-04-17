@@ -1,0 +1,11 @@
+v3 (April, 17, 2016)
+  - Support for github id's.
+  - Support an alternative location for people.json file (even remote locations)
+
+v2 (April, 2, 2016)
+  - Support for GNOME 3.16
+  - Support for gravatar (libravatar.org and gravatar.com)
+
+v1 (March 28, 2016)
+ - Initial version
+

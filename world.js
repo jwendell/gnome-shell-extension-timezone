@@ -32,10 +32,10 @@ const World = new Lang.Class({
         return 0;
     },
 
-    getTimezones: function() {
-        let people = this._people.getPeople();
+    _getTimezonesCB: function(people) {
         if (people.error) {
-            return people;
+            this._getTimezonesOriginalCB(people);
+            return;
         }
 
         let localOffset = GLib.DateTime.new_now_local().get_utc_offset() / (3600*1000*1000);
@@ -51,7 +51,12 @@ const World = new Lang.Class({
         timezones.sort(this._sortByTimezone);
 
         this._timezones = timezones;
-        return this._timezones;
+        this._getTimezonesOriginalCB(this._timezones);
+    },
+
+    getTimezones: function(cb) {
+        this._getTimezonesOriginalCB = cb;
+        this._people.getPeople(Lang.bind(this, this._getTimezonesCB));
     }
 
 });

@@ -42,29 +42,28 @@ const People = new Lang.Class({
         return 0;
     },
 
-    _parsePeopleFile: function() {
-        let contents, success, tag, people;
-        try {
-            [success, contents, tag] = this._file.load_contents(null);
-        } catch (e) {
-            log('Error parsing %s: %s'.format(this._path, e));
-            return {error: 'Make sure to put a file "people.json" in your home directory'};
-        }
-
-        try {
-            people = JSON.parse(contents);
-        } catch (e) {
-            log('Error parsing %s: %s'.format(this._path, e));
-            return {error: 'There was an error parsing people.json file'};
-        }
-
-        return people;
+    getPeople: function(cb) {
+        this._getPeopleOriginalCB = cb;
+        this._file.load_contents_async(null, Lang.bind(this, this._getPeopleCB));
     },
 
-    getPeople: function() {
-        let rawPeople = this._parsePeopleFile();
-        if (rawPeople.error)
-            return rawPeople;
+    _getPeopleCB: function(a, res) {
+        let contents, success, tag, rawPeople;
+        try {
+            [success, contents, tag] = this._file.load_contents_finish(res);
+        } catch (e) {
+            log('Error parsing %s: %s'.format(this._path, e));
+            this._getPeopleOriginalCB({error: 'Make sure to put a file "people.json" in your home directory'});
+            return;
+        }
+
+        try {
+            rawPeople = JSON.parse(contents);
+        } catch (e) {
+            log('Error parsing %s: %s'.format(this._path, e));
+            this._getPeopleOriginalCB({error: 'There was an error parsing people.json file'});
+            return;
+        }
 
         let people = [];
         rawPeople.forEach(function(person) {
@@ -72,7 +71,7 @@ const People = new Lang.Class({
         });
         people.sort(this._sortByTimezone);
 
-        return people;
+        this._getPeopleOriginalCB(people);
     }
 
 });

@@ -30,7 +30,6 @@ const TimezoneIndicator = new Lang.Class({
         this._item = new PopupMenu.PopupBaseMenuItem({reactive: false});
         this.menu.addMenuItem(this._item);
 
-        //this._createUI();
         this._createWorld();
 
         this._clock = new GnomeDesktop.WallClock();
@@ -65,54 +64,57 @@ const TimezoneIndicator = new Lang.Class({
         box.add(this._infoLabel);
     },
 
+    _getTimezonesCB: function(timezones) {
+        if (timezones.error) {
+            this._infoLabel.label = timezones.error;
+            return;
+        }
+
+        let peopleCount = 0;
+        this._timezones = [];
+
+        timezones.forEach(Lang.bind(this, function(tz) {
+            let tzBox = new St.BoxLayout({vertical: true, width: 70});
+            this._tzsBox.add(tzBox);
+            let timeLabel = new St.Label({style_class: 'tzi-time-label'});
+            if (tz.sameAsSystem)
+                timeLabel.style_class += ' tzi-time-label-system';
+            this._timezones.push({tz: tz.tz1, label: timeLabel});
+
+            tzBox.add(timeLabel, {x_align: St.Align.START, x_fill: false});
+
+            tz.topCityLabel = new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity'});
+            tzBox.add(tz.topCityLabel);
+            tz.connect('changed', Lang.bind(this, function() {
+                tz.topCityLabel.text = tz.topCity;
+            }));
+
+            tzBox.add(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset'}));
+
+            tz.getPeople().forEach(function(person) {
+              peopleCount++;
+              let iconBin = new St.Bin();
+              let avatar = new Avatar.Avatar(person);
+              iconBin.child = avatar.actor;
+              tzBox.add(iconBin, {x_align: St.Align.START, x_fill: false});
+            });
+        }));
+
+        this._infoLabel.label = '%d people distributed in %d time zones...'.format(peopleCount, timezones.length);
+        this._updateTimezones();
+    },
+
     _createUI: function() {
         if (this._mainBox)
             this._item.actor.remove_actor(this._mainBox);
+
         this._mainBox = new St.BoxLayout({vertical: true});
-        let tzsBox = new St.BoxLayout({style_class: 'tz1-people-box'});
-        this._mainBox.add(tzsBox);
+        this._tzsBox = new St.BoxLayout({style_class: 'tz1-people-box'});
+        this._mainBox.add(this._tzsBox);
         this._createInfoLine();
-
-        this._timezones = [];
-
-        let timezones = this._world.getTimezones();
-        if (timezones.error) {
-            this._infoLabel.label = timezones.error;
-        } else {
-            let peopleCount = 0;
-
-            timezones.forEach(Lang.bind(this, function(tz) {
-                let tzBox = new St.BoxLayout({vertical: true, width: 70});
-                tzsBox.add(tzBox);
-                let timeLabel = new St.Label({style_class: 'tzi-time-label'});
-                if (tz.sameAsSystem)
-                    timeLabel.style_class += ' tzi-time-label-system';
-                this._timezones.push({tz: tz.tz1, label: timeLabel});
-
-                tzBox.add(timeLabel, {x_align: St.Align.START, x_fill: false});
-
-                tz.topCityLabel = new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity'});
-                tzBox.add(tz.topCityLabel);
-                tz.connect('changed', Lang.bind(this, function() {
-                    tz.topCityLabel.text = tz.topCity;
-                }));
-
-                tzBox.add(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset'}));
-
-                tz.getPeople().forEach(function(person) {
-                  peopleCount++;
-                  let iconBin = new St.Bin();
-                  let avatar = new Avatar.Avatar(person);
-                  iconBin.child = avatar.actor;
-                  tzBox.add(iconBin, {x_align: St.Align.START, x_fill: false});
-                });
-            }));
-
-            this._infoLabel.label = '%d people distributed in %d time zones...'.format(peopleCount, timezones.length);
-            this._updateTimezones();
-        }
-
         this._item.actor.add_actor(this._mainBox);
+
+        this._world.getTimezones(Lang.bind(this, this._getTimezonesCB));
     }
 });
 

@@ -9,6 +9,7 @@ const Gio = imports.gi.Gio;
 const Main = imports.ui.main;
 const GnomeDesktop = imports.gi.GnomeDesktop;
 const Shell = imports.gi.Shell;
+const Util = imports.misc.util;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -48,7 +49,7 @@ const TimezoneIndicator = new Lang.Class({
     _updateTimezones: function() {
         this._timezones.forEach(function (timezone) {
             let time = GLib.DateTime.new_now(timezone.tz);
-            timezone.label.text = time.format('%H:%M');
+            timezone.label.text = Util.formatTime(time, { timeOnly: true });
         });
     },
 

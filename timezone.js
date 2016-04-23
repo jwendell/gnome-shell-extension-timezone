@@ -56,7 +56,7 @@ const Timezone = new Lang.Class({
 
         let result = '', m = 0;
         for (let city in count) {
-            if (count[city] > m) {
+            if ((count[city] > m) || (count[city] == m && city.length > 0 && city.length < result.length)) {
                 m = count[city];
                 result = city;
             }

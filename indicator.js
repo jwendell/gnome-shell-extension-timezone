@@ -74,7 +74,7 @@ const TimezoneIndicator = new Lang.Class({
         this._timezones = [];
 
         timezones.forEach(Lang.bind(this, function(tz) {
-            let tzBox = new St.BoxLayout({vertical: true, width: 70});
+            let tzBox = new St.BoxLayout({vertical: true});
             this._tzsBox.add(tzBox);
             let timeLabel = new St.Label({style_class: 'tzi-time-label'});
             if (tz.sameAsSystem)

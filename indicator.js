@@ -24,7 +24,7 @@ const TimezoneIndicator = new Lang.Class({
     _init: function() {
         this.parent(0.5, _("Timezone Indicator"));
 
-        this._icon = new St.Icon({ icon_name: 'gnome-clocks-symbolic', fallback_icon_name: 'org.gnome.clocks-symbolic', style_class: 'system-status-icon' });
+        this._icon = new St.Icon({ icon_name: 'extension-timezone-symbolic', style_class: 'system-status-icon' });
         this.actor.add_actor(this._icon);
 
         Main.panel.menuManager.addMenu(this.menu);

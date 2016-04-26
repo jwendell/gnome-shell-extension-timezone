@@ -38,6 +38,19 @@ const TimezoneIndicator = new Lang.Class({
 
         this._settings = Convenience.getSettings();
         this._settings.connect('changed', Lang.bind(this, this._createWorld));
+
+        this._setupScreen();
+    },
+
+    _setupScreen: function() {
+        this._screenHeight = global.screen_height;
+        global.screen.connect('monitors-changed', Lang.bind(this, function() {
+            if (global.screen_height == this._screenHeight)
+                return;
+            log('Resolution changed, recreating timezone UI');
+            this._screenHeight = global.screen_height;
+            this._createWorld();
+        }));
     },
 
     _createWorld: function() {
@@ -74,6 +87,10 @@ const TimezoneIndicator = new Lang.Class({
         let peopleCount = 0;
         this._timezones = [];
 
+        let availableHeight = global.screen_height - 250;
+        let avatarWidth = 70;
+        let maxAvatarsColumn = Math.floor(availableHeight / avatarWidth);
+
         timezones.forEach(Lang.bind(this, function(tz) {
             let tzBox = new St.BoxLayout({vertical: true});
             this._tzsBox.add(tzBox);
@@ -82,22 +99,33 @@ const TimezoneIndicator = new Lang.Class({
                 timeLabel.style_class += ' tzi-time-label-system';
             this._timezones.push({tz: tz.tz1, label: timeLabel});
 
-            tzBox.add(timeLabel, {x_align: St.Align.START, x_fill: false});
+            tzBox.add(timeLabel, {x_align: St.Align.MIDDLE, x_fill: false});
 
             tz.topCityLabel = new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity'});
-            tzBox.add(tz.topCityLabel);
+            tzBox.add(tz.topCityLabel, {x_align: St.Align.MIDDLE, x_fill: false});
             tz.connect('changed', Lang.bind(this, function() {
                 tz.topCityLabel.text = tz.topCity;
             }));
 
-            tzBox.add(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset'}));
+            tzBox.add(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset'}),
+                      {x_align: St.Align.MIDDLE, x_fill: false});
 
-            tz.getPeople().forEach(function(person) {
-              peopleCount++;
-              let iconBin = new St.Bin();
-              let avatar = new Avatar.Avatar(person);
-              iconBin.child = avatar.actor;
-              tzBox.add(iconBin, {x_align: St.Align.START, x_fill: false});
+            let people = tz.getPeople();
+            peopleCount += people.length;
+
+            let columns = Math.ceil(people.length / maxAvatarsColumn);
+            let i = 0;
+            let rowBox;
+
+            people.forEach(function(person) {
+                if (i++ % columns == 0) {
+                    rowBox = new St.BoxLayout({style: 'spacing: 20px'});
+                    tzBox.add(rowBox);
+                }
+                let iconBin = new St.Bin();
+                let avatar = new Avatar.Avatar(person);
+                iconBin.child = avatar.actor;
+                rowBox.add(iconBin, {x_align: St.Align.START, x_fill: false});
             });
         }));
 

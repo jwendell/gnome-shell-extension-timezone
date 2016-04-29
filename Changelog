@@ -1,3 +1,10 @@
+v4 (April, 29, 2016)
+  - Read people.json asynchronously
+  - Correctly show labels on high DPI
+  - Use the same time format as of the system
+  - Sometimes icon is not shown - Fix that by using our own icon
+  - Split avatars into multiple columns when they are too many
+
 v3 (April, 17, 2016)
   - Support for github id's.
   - Support an alternative location for people.json file (even remote locations)

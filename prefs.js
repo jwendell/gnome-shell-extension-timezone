@@ -27,7 +27,7 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
         box.add(this._createFileChooser());
         this.add(box);
 
-        this.add(new Gtk.Label({ label: '<small>Remote files, e.g., starting with <i>http://</i> are also valid.</small>',
+        this.add(new Gtk.Label({ label: '<small>Remote files, e.g., starting with <i>http://</i> are also valid. <a href="https://github.com/jwendell/gnome-shell-extension-timezone/blob/master/editing-people.md">Need help with JSON?</a></small>',
                                  use_markup: true, margin_bottom: 6,
                                  hexpand: true, halign: Gtk.Align.START}));
 

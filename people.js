@@ -15,6 +15,7 @@ const People = new Lang.Class({
         this._settings = Convenience.getSettings();
         this._path = this._getFilename();
         this._file = Gio.file_new_for_uri(this._path);
+        this._githubToken = this._settings.get_string("github-token").trim();
 
         this._monitor = this._file.monitor(Gio.FileMonitorFlags.NONE, null);
         this._monitor.connect('changed',
@@ -66,9 +67,10 @@ const People = new Lang.Class({
         }
 
         let people = [];
-        rawPeople.forEach(function(person) {
+        rawPeople.forEach(Lang.bind(this, function(person) {
+            person._githubToken = this._githubToken;
             people.push(new Person.Person(person));
-        });
+        }));
         people.sort(this._sortByTimezone);
 
         this._getPeopleOriginalCB(people);

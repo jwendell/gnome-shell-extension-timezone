@@ -13,6 +13,7 @@ const Person = new Lang.Class({
         this.avatar = params.avatar;
         this.github = params.github;
         this.gravatar = params.gravatar;
+        this._githubToken = params._githubToken;
 
         this._insertDateTime();
         this._getRemoteInfo();
@@ -41,9 +42,12 @@ const Person = new Lang.Class({
     },
 
     _getGithubInfo: function() {
-        let _httpSession = new Soup.Session({user_agent: 'curl/7.43.0'});
-        let url = 'https://api.github.com/users/%s'.format(this.github)
+        let _httpSession = new Soup.Session({user_agent: 'jwendell/gnome-shell-extension-timezone'});
+        let url = 'https://api.github.com/users/%s'.format(this.github);
         let message = new Soup.Message({method: 'GET', uri: new Soup.URI(url)});
+        if (this._githubToken) {
+            message.request_headers.append("Authorization", "token " + this._githubToken);
+        }
 
         _httpSession.queue_message(message, Lang.bind(this, function(session, message) {
             if (message.status_code != Soup.KnownStatusCode.OK) {

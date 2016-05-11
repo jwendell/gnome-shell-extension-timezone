@@ -7,7 +7,7 @@ const Person = new Lang.Class({
     Name: 'Person',
 
     _init: function(params) {
-        this.name = params.name || params.github || "";
+        this.name = params.name || "";
         this.city = params.city || "";
         this.tz = params.tz;
         this.avatar = params.avatar;

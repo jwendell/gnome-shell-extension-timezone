@@ -47,7 +47,7 @@ const Person = new Lang.Class({
 
         _httpSession.queue_message(message, Lang.bind(this, function(session, message) {
             if (message.status_code != Soup.KnownStatusCode.OK) {
-                log('Response code "%d" getting data from github. Got: %s'.format(message.status_code, message.response_body.data));
+                log('Response code "%d" getting data from github for user %s. Got: %s'.format(message.status_code, this.github, message.response_body.data));
                 return;
             }
             let p;

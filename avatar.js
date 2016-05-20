@@ -4,6 +4,10 @@ const Clutter = imports.gi.Clutter;
 const Lang = imports.lang;
 const GLib = imports.gi.GLib;
 
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const AvatarCache = Me.imports.avatarCache;
+
 const AVATAR_ICON_SIZE = 70;
 
 const Avatar = new Lang.Class({
@@ -26,6 +30,7 @@ const Avatar = new Lang.Class({
                                   style_class: 'tzi-avatar-main-box' });
 
         this._createPersonWidget();
+        this._cache = new AvatarCache.AvatarCache(person);
 
         this._updateInfo();
         this._person.connect('changed', Lang.bind(this, this._updateInfo));
@@ -35,12 +40,17 @@ const Avatar = new Lang.Class({
         this._nameLabel.text = this._person.name ? this._person.name : this._person.github;
         this._cityLabel.text = this._person.city;
 
-        if (this._person.avatar) {
-            this.actor.style = 'background-image: url("%s");'.format(this._person.avatar);
+        this._cache.fetchAvatar(Lang.bind(this, this._setBackground));
+    },
+
+    _setBackground: function() {
+        let filename = this._cache.getFilename();
+        if (GLib.file_test(filename, GLib.FileTest.EXISTS)) {
+            this.actor.style = 'background-image: url("%s");'.format(filename);
             this.actor.connect('enter-event', Lang.bind(this, this._onEnterEvent));
             this.actor.connect('leave-event', Lang.bind(this, this._onLeaveEvent));
             this._detailBox.visible = false;
-            if (this._defaultAvatarIcon)
+            if (this._expandBox.child)
                 this._expandBox.remove_actor(this._expandBox.child);
         }
     },

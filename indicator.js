@@ -34,13 +34,20 @@ const TimezoneIndicator = new Lang.Class({
         this._createWorld();
 
         this._clock = new GnomeDesktop.WallClock();
-        this._clock.connect('notify::clock', Lang.bind(this, this._updateTimezones));
+        this._clockChangedSignalId = this._clock.connect('notify::clock', Lang.bind(this, this._updateTimezones));
 
         this._settings = Convenience.getSettings();
-        this._settings.connect('changed', Lang.bind(this, this._createWorld));
+        this._settingsChangedSignalId = this._settings.connect('changed', Lang.bind(this, this._createWorld));
 
         this._setupScreen();
     },
+
+	destroy: function() {
+		this._clock.disconnect(this._clockChangedSignalId);
+		this._settings.disconnect(this._settingsChangedSignalId);
+
+		this.parent();
+	},
 
     _setupScreen: function() {
         this._screenHeight = global.screen_height;

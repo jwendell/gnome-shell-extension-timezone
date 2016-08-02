@@ -1,3 +1,10 @@
+v5 (August, 02, 2016)
+  - Provide help for editing people.json file
+  - Fixes on github provider
+  - Speed up the initial rendering
+  - Fixed a bug that showed up messages like this in session log:
+    (gnome-shell:1907): Clutter-CRITICAL **: clutter_text_set_text: assertion 'CLUTTER_IS_TEXT (self)' failed
+
 v4 (April, 29, 2016)
   - Read people.json asynchronously
   - Correctly show labels on high DPI

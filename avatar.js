@@ -37,7 +37,7 @@ const Avatar = new Lang.Class({
     },
 
     _updateInfo: function() {
-        this._nameLabel.text = this._person.name ? this._person.name : this._person.github;
+        this._nameLabel.text = this._person.getName();
         this._cityLabel.text = this._person.city;
 
         this._cache.fetchAvatar(Lang.bind(this, this._setBackground));
@@ -65,7 +65,7 @@ const Avatar = new Lang.Class({
         this._detailBox = new St.BoxLayout({visible: !this._person.avatar, vertical: true, style_class: 'tzi-avatar-name-box'});
         this.actor.add(this._detailBox, {x_fill: true});
 
-        this._nameLabel = new St.Label({text: this._person.name ? this._person.name : this._person.github, style_class: 'tzi-avatar-name'});
+        this._nameLabel = new St.Label({text: this._person.getName(), style_class: 'tzi-avatar-name'});
         this._detailBox.add(this._nameLabel, {expand: true, x_align: St.Align.MIDDLE, x_fill: false});
 
         this._cityLabel = new St.Label({text: this._person.city});

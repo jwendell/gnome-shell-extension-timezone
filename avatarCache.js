@@ -11,7 +11,6 @@ const AvatarCache = new Lang.Class({
 
     _init: function(person) {
         this._person = person;
-        this.id = this._person.name ? this._person.name : this._person.github;
     },
 
     fetchAvatar: function(cb) {
@@ -26,7 +25,7 @@ const AvatarCache = new Lang.Class({
 
         _httpSession.queue_message(message, Lang.bind(this, function(session, message) {
             if (message.status_code != Soup.KnownStatusCode.OK) {
-                log('Response code "%d" getting avatar for user %s. Got: %s'.format(message.status_code, this.id, message.response_body.data));
+                log('Response code "%d" getting avatar for user %s. Got: %s'.format(message.status_code, this._person.getName(), message.response_body.data));
                 cb(false);
                 return;
             }
@@ -38,7 +37,7 @@ const AvatarCache = new Lang.Class({
     },
 
     getFilename: function() {
-        let id = this.id.trim().toLowerCase();
+        let id = this._person.getName().trim().toLowerCase();
         let hash = GLib.compute_checksum_for_string(GLib.ChecksumType.MD5, id, -1);
         let filename = GLib.build_filenamev([GLib.get_user_cache_dir(), Me.metadata.uuid, hash]);
 

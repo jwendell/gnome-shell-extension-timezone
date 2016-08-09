@@ -7,6 +7,7 @@ const Person = new Lang.Class({
     Name: 'Person',
 
     _init: function(params) {
+        this.id = ++peopleCount;
         this.name = params.name || "";
         this.city = params.city || "";
         this.tz = params.tz;
@@ -18,6 +19,10 @@ const Person = new Lang.Class({
         this._insertDateTime();
         this._getRemoteInfo();
     },
+
+	getName: function() {
+		return this.name ? this.name : (this.github ? this.github : 'Person ' + this.id);
+	},
 
     _insertDateTime: function() {
         this.tz1 = GLib.TimeZone.new(this.tz);
@@ -86,3 +91,8 @@ const Person = new Lang.Class({
 
 });
 Signals.addSignalMethods(Person.prototype);
+
+let peopleCount = 0;
+function resetPeopleCount() {
+	peopleCount = 0;
+};

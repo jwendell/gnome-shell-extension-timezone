@@ -67,6 +67,7 @@ const People = new Lang.Class({
         }
 
         let people = [];
+        Person.resetPeopleCount();
         rawPeople.forEach(Lang.bind(this, function(person) {
             person._githubToken = this._githubToken;
             people.push(new Person.Person(person));

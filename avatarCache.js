@@ -20,8 +20,14 @@ const AvatarCache = new Lang.Class({
         }
 
         let _httpSession = new Soup.Session({user_agent: 'jwendell/gnome-shell-extension-timezone'});
-        let url = this._person.avatar;
-        let message = new Soup.Message({method: 'GET', uri: new Soup.URI(url)});
+        let uri = new Soup.URI(this._person.avatar);
+        if (uri == null) {
+            log('Avatar for %s (%s) is not valid.'.format(this._person.getName(), this._person.avatar));
+            cb(false);
+            return;
+        }
+
+        let message = new Soup.Message({method: 'GET', uri: uri});
 
         _httpSession.queue_message(message, Lang.bind(this, function(session, message) {
             if (message.status_code != Soup.KnownStatusCode.OK) {

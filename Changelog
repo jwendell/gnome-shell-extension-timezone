@@ -1,3 +1,8 @@
+v6 (September, 05, 2016)
+  - Allow empties name and github. TZ is the only mandatory field
+  - Check if avatar is a valid URL
+  - Side effect: Both improvements above fix a crash in the extension
+
 v5 (August, 02, 2016)
   - Provide help for editing people.json file
   - Fixes on github provider

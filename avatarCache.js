@@ -1,6 +1,7 @@
 const Lang = imports.lang;
 const Signals = imports.signals;
 const GLib = imports.gi.GLib;
+const Gio = imports.gi.Gio;
 const Soup = imports.gi.Soup;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -16,6 +17,11 @@ const AvatarCache = new Lang.Class({
     fetchAvatar: function(cb) {
         if (!this._person.avatar) {
             cb(false);
+            return;
+        }
+
+        if (this._handleLocalAvatar()) {
+            cb(true);
             return;
         }
 
@@ -48,6 +54,21 @@ const AvatarCache = new Lang.Class({
         let filename = GLib.build_filenamev([GLib.get_user_cache_dir(), Me.metadata.uuid, hash]);
 
         return filename;
+    },
+
+    _handleLocalAvatar: function() {
+        let file = Gio.File.parse_name(this._person.avatar);
+        if (!file.is_native())
+            return false;
+
+        let dest = Gio.File.new_for_path(this.getFilename());
+        try {
+            file.copy(dest, Gio.FileCopyFlags.OVERWRITE, null, null);
+        } catch (e) {
+            log('Error building an avatar cache for user %s: %s'.format(this._person.getName(), e));
+        }
+
+        return true;
     }
 });
 

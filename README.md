@@ -55,6 +55,7 @@ Photos can be provided through 3 fields:
   - **_Niel_** in the example above
 - `avatar`: Supply directly the URL of the image
   - **_Dan_** in the example above
+  - It can also be a path to a local filename, like `file:///path/to/image.png` or just `/path/to/image.png`
 - `github`: Supply a GitHub username.
   - **_torvalds_** in the example above
 

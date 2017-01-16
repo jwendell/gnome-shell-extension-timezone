@@ -1,3 +1,7 @@
+v7 (January, 16, 2017)
+  - Support local (filesystem) avatars (In the form "file:///path-to-image" or just "/path-to-image".)
+  - Support GNOME 3.22
+
 v6 (September, 05, 2016)
   - Allow empties name and github. TZ is the only mandatory field
   - Check if avatar is a valid URL

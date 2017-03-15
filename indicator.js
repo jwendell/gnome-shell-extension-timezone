@@ -68,8 +68,15 @@ const TimezoneIndicator = new Lang.Class({
 
     _updateTimezones: function() {
         this._timezones.forEach(function (timezone) {
-            let time = GLib.DateTime.new_now(timezone.tz);
+            let time = GLib.DateTime.new_now(timezone.tz.tz1);
             timezone.label.text = Util.formatTime(time, { timeOnly: true });
+            timezone.label.style_class = 'tzi-time-label';
+
+            if (timezone.tz.sameAsSystem)
+                timezone.label.style_class += ' tzi-time-label-system';
+
+            if (time.get_hour(time) < 8 || time.get_hour(time) > 19)
+                timezone.label.style_class += ' tzi-time-label-inactive';
         });
     },
 
@@ -102,9 +109,7 @@ const TimezoneIndicator = new Lang.Class({
             let tzBox = new St.BoxLayout({vertical: true});
             this._tzsBox.add(tzBox);
             let timeLabel = new St.Label({style_class: 'tzi-time-label'});
-            if (tz.sameAsSystem)
-                timeLabel.style_class += ' tzi-time-label-system';
-            this._timezones.push({tz: tz.tz1, label: timeLabel});
+            this._timezones.push({tz: tz, label: timeLabel});
 
             tzBox.add(timeLabel, {x_align: St.Align.MIDDLE, x_fill: false});
 

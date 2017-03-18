@@ -37,7 +37,7 @@ const TimezoneIndicator = new Lang.Class({
         this._clockChangedSignalId = this._clock.connect('notify::clock', Lang.bind(this, this._updateTimezones));
 
         this._settings = Convenience.getSettings();
-        this._settingsChangedSignalId = this._settings.connect('changed', Lang.bind(this, this._createWorld));
+        this._settingsChangedSignalId = this._settings.connect('changed::path-to-people-json', Lang.bind(this, this._createWorld));
 
         this._setupScreen();
     },
@@ -69,14 +69,24 @@ const TimezoneIndicator = new Lang.Class({
     _updateTimezones: function() {
         this._timezones.forEach(function (timezone) {
             let time = GLib.DateTime.new_now(timezone.tz.tz1);
+            let settings = Convenience.getSettings();
+            const start = settings.get_int("working-hour-start");
+            const end = settings.get_int("working-hour-end");
+
             timezone.label.text = Util.formatTime(time, { timeOnly: true });
             timezone.label.style_class = 'tzi-time-label';
 
             if (timezone.tz.sameAsSystem)
                 timezone.label.style_class += ' tzi-time-label-system';
 
-            if (time.get_hour(time) < 8 || time.get_hour(time) > 19)
-                timezone.label.style_class += ' tzi-time-label-inactive';
+            if (start < end) {
+
+                if (time.get_hour(time) < start || time.get_hour(time) >= end)
+                    timezone.label.style_class += ' tzi-time-label-inactive';
+            } else {
+                if (time.get_hour(time) >= end && time.get_hour(time) < start)
+                    timezone.label.style_class += ' tzi-time-label-inactive';
+            }
         });
     },
 

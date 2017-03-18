@@ -10,5 +10,15 @@
 			<summary>Token for making HTTP requests to github API</summary>
 			<description>Optional. If not present requests are limited to 60 per hour. Create yours here: https://github.com/settings/tokens</description>
 		</key>
+		<key name="working-hour-start" type="i">
+			<default>8</default>
+			<summary>Start working hour</summary>
+			<description>Standard business hours</description>
+		</key>
+		<key name="working-hour-end" type="i">
+			<default>18</default>
+			<summary>End working hour</summary>
+			<description>Standard business hours</description>
+		</key>
 	</schema>
 </schemalist>

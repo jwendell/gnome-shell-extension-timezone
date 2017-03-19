@@ -70,8 +70,8 @@ const TimezoneIndicator = new Lang.Class({
         this._timezones.forEach(function (timezone) {
             let time = GLib.DateTime.new_now(timezone.tz.tz1);
             let settings = Convenience.getSettings();
-            const start = settings.get_int("working-hour-start");
-            const end = settings.get_int("working-hour-end");
+            const start = settings.get_int("working-hours-start");
+            const end = settings.get_int("working-hours-end");
 
             timezone.label.text = Util.formatTime(time, { timeOnly: true });
             timezone.label.style_class = 'tzi-time-label';
@@ -79,13 +79,16 @@ const TimezoneIndicator = new Lang.Class({
             if (timezone.tz.sameAsSystem)
                 timezone.label.style_class += ' tzi-time-label-system';
 
-            if (start < end) {
+            if (settings.get_boolean("enable-working-hours")) {
+                timezone.label.style_class += ' tzi-time-label-active';
 
-                if (time.get_hour(time) < start || time.get_hour(time) >= end)
-                    timezone.label.style_class += ' tzi-time-label-inactive';
-            } else {
-                if (time.get_hour(time) >= end && time.get_hour(time) < start)
-                    timezone.label.style_class += ' tzi-time-label-inactive';
+                if (start < end) {
+                    if (time.get_hour(time) < start || time.get_hour(time) >= end)
+                        timezone.label.style_class += ' tzi-time-label-inactive';
+                } else {
+                    if (time.get_hour(time) >= end && time.get_hour(time) < start)
+                        timezone.label.style_class += ' tzi-time-label-inactive';
+                }
             }
         });
     },

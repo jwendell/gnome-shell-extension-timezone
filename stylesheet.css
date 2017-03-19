@@ -10,7 +10,7 @@
 
 .tzi-time-label {
     font-weight: bold;
-    color: lime
+    color: white
 }
 
 .tzi-time-label-system {
@@ -20,6 +20,9 @@
     padding-left: 3px;
 }
 
+.tzi-time-label-active {
+    color: lime;
+}
 .tzi-time-label-inactive {
     color: red;
 }

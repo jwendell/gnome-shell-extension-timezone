@@ -20,6 +20,13 @@
     padding-left: 3px;
 }
 
+.tzi-time-label-active {
+    color: lime;
+}
+.tzi-time-label-inactive {
+    color: red;
+}
+
 .tzi-avatar-name-box {
     background-color: #393f3f;
     font-size: 8pt;

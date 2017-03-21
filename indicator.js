@@ -37,7 +37,7 @@ const TimezoneIndicator = new Lang.Class({
         this._clockChangedSignalId = this._clock.connect('notify::clock', Lang.bind(this, this._updateTimezones));
 
         this._settings = Convenience.getSettings();
-        this._settingsChangedSignalId = this._settings.connect('changed', Lang.bind(this, this._createWorld));
+        this._settingsChangedSignalId = this._settings.connect('changed::path-to-people-json', Lang.bind(this, this._createWorld));
 
         this._setupScreen();
     },
@@ -68,8 +68,28 @@ const TimezoneIndicator = new Lang.Class({
 
     _updateTimezones: function() {
         this._timezones.forEach(function (timezone) {
-            let time = GLib.DateTime.new_now(timezone.tz);
+            let time = GLib.DateTime.new_now(timezone.tz.tz1);
+            let settings = Convenience.getSettings();
+            const start = settings.get_int("working-hours-start");
+            const end = settings.get_int("working-hours-end");
+
             timezone.label.text = Util.formatTime(time, { timeOnly: true });
+            timezone.label.style_class = 'tzi-time-label';
+
+            if (timezone.tz.sameAsSystem)
+                timezone.label.style_class += ' tzi-time-label-system';
+
+            if (settings.get_boolean("enable-working-hours")) {
+                timezone.label.style_class += ' tzi-time-label-active';
+
+                if (start < end) {
+                    if (time.get_hour(time) < start || time.get_hour(time) >= end)
+                        timezone.label.style_class += ' tzi-time-label-inactive';
+                } else {
+                    if (time.get_hour(time) >= end && time.get_hour(time) < start)
+                        timezone.label.style_class += ' tzi-time-label-inactive';
+                }
+            }
         });
     },
 
@@ -102,9 +122,7 @@ const TimezoneIndicator = new Lang.Class({
             let tzBox = new St.BoxLayout({vertical: true});
             this._tzsBox.add(tzBox);
             let timeLabel = new St.Label({style_class: 'tzi-time-label'});
-            if (tz.sameAsSystem)
-                timeLabel.style_class += ' tzi-time-label-system';
-            this._timezones.push({tz: tz.tz1, label: timeLabel});
+            this._timezones.push({tz: tz, label: timeLabel});
 
             tzBox.add(timeLabel, {x_align: St.Align.MIDDLE, x_fill: false});
 

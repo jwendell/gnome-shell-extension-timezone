@@ -31,32 +31,7 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
                                  use_markup: true, margin_bottom: 6,
                                  hexpand: true, halign: Gtk.Align.START}));
 
-        let box = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 5});
-
-        this._check = new Gtk.CheckButton();
-        this._check.connect("toggled", Lang.bind (this, this._toggledCB));
-
-        this._mlabel = new Gtk.Label({ label: '<b>Highlight working hours: From</b>',
-                                 use_markup: true, margin_bottom: 6,
-                                 hexpand: false, halign: Gtk.Align.START });
-
-        this._hour1 = Gtk.SpinButton.new_with_range (0, 23, 1);
-        this._hour2 = Gtk.SpinButton.new_with_range (0, 23, 1);
-
-        this._check.set_active(this._settings.get_boolean("enable-working-hours"));
-        this._hour1.set_value(this._settings.get_int("working-hours-start"));
-        this._hour2.set_value(this._settings.get_int("working-hours-end"));
-        this._toggledCB();
-
-        box.add(this._check);
-        box.add(this._mlabel);
-        box.add(this._hour1);
-        box.add(new Gtk.Label({ label: ' <b>To</b> ', use_markup: true}));
-        box.add(this._hour2);
-
-        this.add(new Gtk.Label());
-        this.add(box);
-        this.add(new Gtk.Label());
+        this.add(this._createHighlightBox());
         this.add(this._createSaveButton());
     },
 
@@ -67,15 +42,36 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
         return this._entry;
     },
 
-    _toggledCB: function() {
+    _createHighlightBox: function() {
+        let box = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL,
+                               margin_bottom: 20, margin_top: 20});
 
-        if (this._check.get_active() == true) {
-            this._hour1.set_sensitive(true);
-            this._hour2.set_sensitive(true);
-        } else {
-            this._hour1.set_sensitive(false);
-            this._hour2.set_sensitive(false);
-        }
+        let box1 = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 5});
+        box.add(box1);
+        let label = new Gtk.Label({label: '<b>Highlight working hours</b>',
+                                 use_markup: true, hexpand: true,
+                                 halign: Gtk.Align.START});
+        box1.add(label);
+        let sb = new Gtk.Switch();
+        this._settings.bind('enable-working-hours', sb, 'active', Gio.SettingsBindFlags.DEFAULT);
+        box1.add(sb);
+
+        let box2 = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL,
+                                spacing: 5});
+        box.add(box2);
+        sb.bind_property('active', box2, 'sensitive', GObject.BindingFlags.SYNC_CREATE);
+
+        box2.add(new Gtk.Label({label: 'From'}));
+        let from = Gtk.SpinButton.new_with_range (0, 23, 1);
+        box2.add(from);
+        this._settings.bind('working-hours-start', from, 'value', Gio.SettingsBindFlags.DEFAULT);
+
+        box2.add(new Gtk.Label({label: 'to'}));
+        let to = Gtk.SpinButton.new_with_range (0, 23, 1);
+        box2.add(to);
+        this._settings.bind('working-hours-end', to, 'value', Gio.SettingsBindFlags.DEFAULT);
+
+        return box;
     },
 
     _createFileChooser: function() {
@@ -95,9 +91,6 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
                                 can_default: true});
         b.get_style_context().add_class('suggested-action');
         b.connect("clicked", Lang.bind(this, function() {
-            this._settings.set_boolean("enable-working-hours", this._check.get_active());
-            this._settings.set_int("working-hours-start", parseInt(this._hour1.get_value()));
-            this._settings.set_int("working-hours-end", parseInt(this._hour2.get_value()));
             this._settings.set_string("path-to-people-json", this._entry.text);
             Gio.Application.get_default().quit();
         }));

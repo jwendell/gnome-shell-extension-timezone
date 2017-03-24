@@ -8,6 +8,9 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Person = Me.imports.person;
 const Convenience = Me.imports.convenience;
 
+const Gettext = imports.gettext.domain('timezone@jwendell');
+const _ = Gettext.gettext;
+
 const People = new Lang.Class({
     Name: 'People',
 
@@ -54,7 +57,7 @@ const People = new Lang.Class({
             [success, contents, tag] = this._file.load_contents_finish(res);
         } catch (e) {
             log('Error parsing %s: %s'.format(this._path, e));
-            this._getPeopleOriginalCB({error: 'Make sure to put a file "people.json" in your home directory'});
+            this._getPeopleOriginalCB({error: _('Make sure to put a file "people.json" in your home directory')});
             return;
         }
 
@@ -62,7 +65,7 @@ const People = new Lang.Class({
             rawPeople = JSON.parse(contents);
         } catch (e) {
             log('Error parsing %s: %s'.format(this._path, e));
-            this._getPeopleOriginalCB({error: 'There was an error parsing people.json file'});
+            this._getPeopleOriginalCB({error: _('There was an error parsing people.json file')});
             return;
         }
 

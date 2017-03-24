@@ -7,6 +7,9 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 
+const Gettext = imports.gettext.domain('timezone@jwendell');
+const _ = Gettext.gettext;
+
 const TimezoneExtensionPrefsWidget = new GObject.Class({
     Name: 'TimezoneExtension.Prefs.Widget',
     GTypeName: 'TimezoneExtensionPrefsWidget',
@@ -18,7 +21,7 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
         this.margin = 12;
         this._settings = Convenience.getSettings();
 
-        this.add(new Gtk.Label({ label: '<b>Location for the <i>people.json</i> file</b>',
+        this.add(new Gtk.Label({ label: _('<b>Location for the <i>people.json</i> file</b>'),
                                  use_markup: true, margin_bottom: 6,
                                  hexpand: true, halign: Gtk.Align.START }));
 
@@ -27,7 +30,7 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
         box.add(this._createFileChooser());
         this.add(box);
 
-        this.add(new Gtk.Label({ label: '<small>Remote files, e.g., starting with <i>http://</i> are also valid. <a href="https://github.com/jwendell/gnome-shell-extension-timezone/blob/master/editing-people.md">Need help with JSON?</a></small>',
+        this.add(new Gtk.Label({ label: _('<small>Remote files, e.g., starting with <i>http://</i> are also valid. <a href="https://github.com/jwendell/gnome-shell-extension-timezone/blob/master/editing-people.md">Need help with JSON?</a></small>'),
                                  use_markup: true, margin_bottom: 6,
                                  hexpand: true, halign: Gtk.Align.START}));
 
@@ -48,7 +51,7 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
 
         let box1 = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 5});
         box.add(box1);
-        let label = new Gtk.Label({label: '<b>Highlight working hours</b>',
+        let label = new Gtk.Label({label: _('<b>Highlight working hours</b>'),
                                  use_markup: true, hexpand: true,
                                  halign: Gtk.Align.START});
         box1.add(label);
@@ -61,12 +64,12 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
         box.add(box2);
         sb.bind_property('active', box2, 'sensitive', GObject.BindingFlags.SYNC_CREATE);
 
-        box2.add(new Gtk.Label({label: 'From'}));
+        box2.add(new Gtk.Label({label: _('From')}));
         let from = Gtk.SpinButton.new_with_range (0, 23, 1);
         box2.add(from);
         this._settings.bind('working-hours-start', from, 'value', Gio.SettingsBindFlags.DEFAULT);
 
-        box2.add(new Gtk.Label({label: 'to'}));
+        box2.add(new Gtk.Label({label: _('to')}));
         let to = Gtk.SpinButton.new_with_range (0, 23, 1);
         box2.add(to);
         this._settings.bind('working-hours-end', to, 'value', Gio.SettingsBindFlags.DEFAULT);
@@ -85,7 +88,7 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
     },
 
     _createSaveButton: function() {
-        let b = new Gtk.Button({label: "Save",
+        let b = new Gtk.Button({label: _("Save"),
                                 halign: Gtk.Align.END,
                                 hexpand: false,
                                 can_default: true});

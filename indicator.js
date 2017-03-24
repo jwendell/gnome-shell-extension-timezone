@@ -17,6 +17,9 @@ const World = Me.imports.world;
 const Avatar = Me.imports.avatar;
 const Convenience = Me.imports.convenience;
 
+const Gettext = imports.gettext.domain('timezone@jwendell');
+const _ = Gettext.gettext;
+
 const TimezoneIndicator = new Lang.Class({
     Name: 'TimezoneIndicator',
     Extends: PanelMenu.Button,
@@ -154,7 +157,7 @@ const TimezoneIndicator = new Lang.Class({
             });
         }));
 
-        this._infoLabel.label = '%d people distributed in %d time zones...'.format(peopleCount, timezones.length);
+        this._infoLabel.label = _('%d people distributed in %d time zones...').format(peopleCount, timezones.length);
         this._updateTimezones();
     },
 

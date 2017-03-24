@@ -1,0 +1,66 @@
+# Portuguese translations for PACKAGE package
+# Traduções em português brasileiro para o pacote PACKAGE.
+# Copyright (C) 2017 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Claudio André <claudioandre.br@gmail.com>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-03-23 22:07-0300\n"
+"PO-Revision-Date: 2017-03-23 19:38-0300\n"
+"Last-Translator: Claudio André <claudioandre.br@gmail.com>\n"
+"Language-Team: Brazilian Portuguese\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: indicator.js:28
+msgid "Timezone Indicator"
+msgstr "Indicador de Fuso Horário"
+
+#: indicator.js:160
+#, javascript-format
+msgid "%d people distributed in %d time zones..."
+msgstr "%d pessoas distribuídas em %d fusos horários..."
+
+#: people.js:60
+msgid "Make sure to put a file \"people.json\" in your home directory"
+msgstr "Confirme se o arquivo \"people.json\" está em sua pasta pessoal"
+
+#: people.js:68
+msgid "There was an error parsing people.json file"
+msgstr "Ocorreu um erro ao analisar o arquivo people.json"
+
+#: prefs.js:24
+msgid "<b>Location for the <i>people.json</i> file</b>"
+msgstr "<b>Localização do arquivo <i>people.json</i></b>"
+
+#: prefs.js:33
+msgid ""
+"<small>Remote files, e.g., starting with <i>http://</i> are also valid. <a "
+"href=\"https://github.com/jwendell/gnome-shell-extension-timezone/blob/"
+"master/editing-people.md\">Need help with JSON?</a></small>"
+msgstr ""
+"<small>Arquivos remotos, por exemplo, iniciados em <i>http://</i> são válidos. <a "
+"href=\"https://github.com/jwendell/gnome-shell-extension-timezone/blob/"
+"master/editing-people.md\">Precisa de ajuda com JSON?</a></small>"
+
+#: prefs.js:54
+msgid "<b>Highlight working hours</b>"
+msgstr "<b>Destacar as horas de trabalho</b>"
+
+#: prefs.js:67
+msgid "From"
+msgstr "Das"
+
+#: prefs.js:72
+msgid "to"
+msgstr "às"
+
+#: prefs.js:91
+msgid "Save"
+msgstr "Salvar"

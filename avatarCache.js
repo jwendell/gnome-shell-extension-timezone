@@ -42,7 +42,7 @@ var AvatarCache = new Lang.Class({
                 return;
             }
             let filename = this.getFilename();
-            GLib.file_set_contents(filename, message.response_body.flatten().get_as_bytes().get_data(), -1);
+            GLib.file_set_contents(filename, message.response_body.flatten().get_as_bytes().get_data());
             cb(true);
         }));
 

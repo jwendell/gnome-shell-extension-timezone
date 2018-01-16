@@ -3,7 +3,7 @@ const Signals = imports.signals;
 const GLib = imports.gi.GLib;
 const Soup = imports.gi.Soup;
 
-const Person = new Lang.Class({
+var Person = new Lang.Class({
     Name: 'Person',
 
     _init: function(params) {

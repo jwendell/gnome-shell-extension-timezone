@@ -8,7 +8,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Person = Me.imports.person;
 const Convenience = Me.imports.convenience;
 
-const People = new Lang.Class({
+var People = new Lang.Class({
     Name: 'People',
 
     _init: function() {

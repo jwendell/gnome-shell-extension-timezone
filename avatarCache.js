@@ -7,7 +7,7 @@ const Soup = imports.gi.Soup;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const AvatarCache = new Lang.Class({
+var AvatarCache = new Lang.Class({
     Name: 'AvatarCache',
 
     _init: function(person) {

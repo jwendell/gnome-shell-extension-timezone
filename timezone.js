@@ -30,7 +30,7 @@ function _generateNiceOffset(offset) {
     return r;
 }
 
-const Timezone = new Lang.Class({
+var Timezone = new Lang.Class({
     Name: 'Timezone',
 
     _init: function(params) {

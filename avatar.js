@@ -10,7 +10,7 @@ const AvatarCache = Me.imports.avatarCache;
 
 const AVATAR_ICON_SIZE = 70;
 
-const Avatar = new Lang.Class({
+var Avatar = new Lang.Class({
     Name: 'Avatar',
 
     _init: function(person, params) {

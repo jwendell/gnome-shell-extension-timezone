@@ -17,7 +17,7 @@ const World = Me.imports.world;
 const Avatar = Me.imports.avatar;
 const Convenience = Me.imports.convenience;
 
-const TimezoneIndicator = new Lang.Class({
+var TimezoneIndicator = new Lang.Class({
     Name: 'TimezoneIndicator',
     Extends: PanelMenu.Button,
 

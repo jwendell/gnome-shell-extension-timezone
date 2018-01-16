@@ -11,7 +11,7 @@ function _valuesToArray(obj) {
   return Object.keys(obj).map(function (key) { return obj[key]; });
 }
 
-const World = new Lang.Class({
+var World = new Lang.Class({
     Name: 'World',
 
     _init: function() {

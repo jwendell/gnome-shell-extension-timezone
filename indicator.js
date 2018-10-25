@@ -7,6 +7,7 @@ const Clutter = imports.gi.Clutter;
 const Lang = imports.lang;
 const Gio = imports.gi.Gio;
 const Main = imports.ui.main;
+const Meta = imports.gi.Meta;
 const GnomeDesktop = imports.gi.GnomeDesktop;
 const Shell = imports.gi.Shell;
 const Util = imports.misc.util;
@@ -51,7 +52,8 @@ var TimezoneIndicator = new Lang.Class({
 
     _setupScreen: function() {
         this._screenHeight = global.screen_height;
-        global.screen.connect('monitors-changed', Lang.bind(this, function() {
+        let monitorManager = Meta.MonitorManager.get();
+        monitorManager.connect('monitors-changed', Lang.bind(this, function() {
             if (global.screen_height == this._screenHeight)
                 return;
             log('Resolution changed, recreating timezone UI');
@@ -83,10 +85,10 @@ var TimezoneIndicator = new Lang.Class({
                 timezone.label.style_class += ' tzi-time-label-active';
 
                 if (start < end) {
-                    if (time.get_hour(time) < start || time.get_hour(time) >= end)
+                    if (time.get_hour() < start || time.get_hour() >= end)
                         timezone.label.style_class += ' tzi-time-label-inactive';
                 } else {
-                    if (time.get_hour(time) >= end && time.get_hour(time) < start)
+                    if (time.get_hour() >= end && time.get_hour() < start)
                         timezone.label.style_class += ' tzi-time-label-inactive';
                 }
             }

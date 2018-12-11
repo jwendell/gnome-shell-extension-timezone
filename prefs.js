@@ -32,6 +32,7 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
                                  hexpand: true, halign: Gtk.Align.START}));
 
         this.add(this._createHighlightBox());
+        this.add(this._createPanelConfiguration());
         this.add(this._createSaveButton());
     },
 
@@ -82,6 +83,33 @@ const TimezoneExtensionPrefsWidget = new GObject.Class({
         }));
 
         return this._chooser;
+    },
+
+    _createPanelConfiguration: function() {
+        let box = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL,
+            margin_bottom: 20, margin_top: 20});
+
+        let box1 = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 5});
+        box.add(box1);
+        let label = new Gtk.Label({label: '<b>Panel configuration</b>',
+                      use_markup: true, hexpand: true,
+                      halign: Gtk.Align.START});
+        box1.add(label);
+
+        let box2 = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, spacing: 5});
+        box.add(box2);
+
+        box2.add(new Gtk.Label({label: 'Position in panel'}));
+
+        let combo = new Gtk.ComboBoxText({ active_id: this._settings.get_string('panel-position') });
+        combo.append('left', "Left");
+        combo.append('center', "Center");
+        combo.append('right', "Right");
+
+        this._settings.bind('panel-position', combo, 'active-id', Gio.SettingsBindFlags.DEFAULT);
+        box2.add(combo);
+
+        return box;
     },
 
     _createSaveButton: function() {

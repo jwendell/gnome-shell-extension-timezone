@@ -25,7 +25,8 @@ var TimezoneIndicator = new Lang.Class({
     _init: function() {
         this.parent(0.5, _("Timezone Indicator"));
 
-        this._icon = new St.Icon({ icon_name: 'timezone@jwendell-symbolic', style_class: 'system-status-icon' });
+        this._icon = new St.Icon({style_class: 'system-status-icon'});
+        this._icon.gicon = Gio.icon_new_for_string(`${Me.path}/icons/timezone@jwendell-symbolic.svg`);
         this.actor.add_actor(this._icon);
 
         Main.panel.menuManager.addMenu(this.menu);

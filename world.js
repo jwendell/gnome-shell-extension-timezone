@@ -17,10 +17,15 @@ var World = new Lang.Class({
     _init: function() {
         this._people = new People.People;
 
-        this._people.connect('changed', Lang.bind(this, function() {
+        this._peopleChangedSignalId = this._people.connect('changed', Lang.bind(this, function() {
             this.emit('changed');
         }));
     },
+
+    destroy: function() {
+        this._people.disconnect(this._peopleChangedSignalId);
+        this.parent();
+	},
 
     _sortByTimezone: function(a, b) {
         let d = a.offset - b.offset;

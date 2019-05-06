@@ -48,28 +48,39 @@ var TimezoneIndicator = new Lang.Class({
 		this._clock.disconnect(this._clockChangedSignalId);
 		this._settings.disconnect(this._settingsChangedSignalId);
 
+        let monitorManager = Meta.MonitorManager.get();
+        monitorManager.disconnect(this._monitorChangedSignalId)
+
 		this.parent();
 	},
 
     _setupScreen: function() {
         this._screenHeight = global.screen_height;
         let monitorManager = Meta.MonitorManager.get();
-        monitorManager.connect('monitors-changed', Lang.bind(this, function() {
+        this._monitorChangedSignalId = monitorManager.connect('monitors-changed', Lang.bind(this, function() {
             if (global.screen_height == this._screenHeight)
                 return;
             log('Resolution changed, recreating timezone UI');
             this._screenHeight = global.screen_height;
-            this._createWorld();
+            this._createUI();
         }));
     },
 
     _createWorld: function() {
+        if (this._world) {
+            this._world.disconnect(this._worldChangedSignalId)
+        }
+
         this._world = new World.World;
-        this._world.connect('changed', Lang.bind(this, this._createUI));
+        this._worldChangedSignalId = this._world.connect('changed', Lang.bind(this, this._createUI));
         this._createUI();
     },
 
     _updateTimezones: function() {
+        if (!this._timezones) {
+            return;
+        }
+
         this._timezones.forEach(function (timezone) {
             let time = GLib.DateTime.new_now(timezone.tz.tz1);
             let settings = Convenience.getSettings();
@@ -109,13 +120,14 @@ var TimezoneIndicator = new Lang.Class({
     },
 
     _getTimezonesCB: function(timezones) {
+        this._timezones = [];
+
         if (timezones.error) {
             this._infoLabel.label = timezones.error;
             return;
         }
 
         let peopleCount = 0;
-        this._timezones = [];
 
         let availableHeight = global.screen_height - 250;
         let avatarWidth = 70;
@@ -162,8 +174,9 @@ var TimezoneIndicator = new Lang.Class({
     },
 
     _createUI: function() {
-        if (this._mainBox)
+        if (this._mainBox) {
             this._item.actor.remove_actor(this._mainBox);
+        }
 
         this._mainBox = new St.BoxLayout({vertical: true});
         this._tzsBox = new St.BoxLayout({style_class: 'tz1-people-box'});

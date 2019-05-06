@@ -12,18 +12,24 @@ var People = new Lang.Class({
     Name: 'People',
 
     _init: function() {
+        this._cancellable = null;
         this._settings = Convenience.getSettings();
         this._path = this._getFilename();
         this._file = Gio.file_new_for_uri(this._path);
         this._githubToken = this._settings.get_string("github-token").trim();
 
         this._monitor = this._file.monitor(Gio.FileMonitorFlags.NONE, null);
-        this._monitor.connect('changed',
+        this._monitorChangedSignalId = this._monitor.connect('changed',
                     Lang.bind(this, function(a, b, c, d) {
                         if (d != 1) return;
                         this.emit('changed');
                     }));
     },
+
+    destroy: function() {
+        this._monitor.disconnect(this._monitorChangedSignalId);
+        this.parent();
+	},
 
     _getFilename: function() {
         let f = this._settings.get_string("path-to-people-json").trim();
@@ -44,8 +50,13 @@ var People = new Lang.Class({
     },
 
     getPeople: function(cb) {
+        if (this._cancellable != null) {
+            this._cancellable.cancel();
+        }
+
+        this._cancellable = new Gio.Cancellable();
         this._getPeopleOriginalCB = cb;
-        this._file.load_contents_async(null, Lang.bind(this, this._getPeopleCB));
+        this._file.load_contents_async(this._cancellable, Lang.bind(this, this._getPeopleCB));
     },
 
     _getPeopleCB: function(a, res) {
@@ -53,6 +64,11 @@ var People = new Lang.Class({
         try {
             [success, contents, tag] = this._file.load_contents_finish(res);
         } catch (e) {
+            if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+                log('[timezone] Ignoring previous getPeople() call');
+                return;
+            }
+
             log('Error parsing %s: %s'.format(this._path, e));
             this._getPeopleOriginalCB({error: 'Make sure to put a file "people.json" in your home directory'});
             return;

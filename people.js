@@ -1,3 +1,4 @@
+const ByteArray = imports.byteArray;
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const Lang = imports.lang;
@@ -75,7 +76,7 @@ var People = new Lang.Class({
         }
 
         try {
-            rawPeople = JSON.parse(contents);
+            rawPeople = JSON.parse(ByteArray.toString(contents));
         } catch (e) {
             log('Error parsing %s: %s'.format(this._path, e));
             this._getPeopleOriginalCB({error: 'There was an error parsing people.json file'});

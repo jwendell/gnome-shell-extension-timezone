@@ -57,10 +57,23 @@ var AvatarCache = new Lang.Class({
     },
 
     _handleLocalAvatar: function() {
-        let file = Gio.File.parse_name(this._person.avatar);
-        if (!file.is_native())
-            return false;
+        let filename = this._person.avatar
 
+        // Sanity check
+        if (filename.length == 0) {
+            return true;
+        }
+
+        // Only handle files in filesystem
+        if (filename[0] != '/' && filename.substring(0, 7) != "file://") {
+            return false
+        }
+
+        if (filename[0] == '/') {
+            filename = "file://" + filename
+        }
+
+        let file = Gio.File.new_for_uri(filename);
         let dest = Gio.File.new_for_path(this.getFilename());
         try {
             file.copy(dest, Gio.FileCopyFlags.OVERWRITE, null, null);
@@ -71,4 +84,3 @@ var AvatarCache = new Lang.Class({
         return true;
     }
 });
-

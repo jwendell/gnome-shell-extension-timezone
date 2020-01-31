@@ -6,10 +6,6 @@ it easier to see where and **when** their coworkers are. It's inspired on
 
 ![Screenshot](https://dl.dropboxusercontent.com/s/pmbc9psvmd97f4j/s2.png)
 
-# Versions supported
-
-It has been tested against GNOME Shell 3.16, 3.18 and 3.20.
-
 # Install
 ### Easy way
 Go to [GNOME Extensions page](https://extensions.gnome.org/extension/1060/timezone/) and install it from there.
@@ -19,9 +15,9 @@ Go to [GNOME Extensions page](https://extensions.gnome.org/extension/1060/timezo
 ```sh
 $ mkdir -p ~/.local/share/gnome-shell/extensions
 $ git clone https://github.com/jwendell/gnome-shell-extension-timezone.git ~/.local/share/gnome-shell/extensions/timezone@jwendell
-$ gnome-shell-extension-tool -e timezone@jwendell
+$ gnome-extensions enable timezone@jwendell
 ```
-If it doesn't appear near to the clock, try restarting the shell: `(ALT-F2 + r <ENTER>)`
+You should see a clock icon next to the clock.
 
 # Configuration
 

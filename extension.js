@@ -1,5 +1,7 @@
 const Main = imports.ui.main;
 const GLib = imports.gi.GLib;
+const Gtk = imports.gi.Gtk;
+const St = imports.gi.St;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -7,7 +9,8 @@ const Convenience = Me.imports.convenience;
 const Indicator = Me.imports.indicator;
 
 function init(extensionMeta) {
-    let theme = imports.gi.Gtk.IconTheme.get_default();
+    let theme = new Gtk.IconTheme();
+    theme.set_custom_theme(St.Settings.get().gtk_icon_theme);
     theme.append_search_path(extensionMeta.path + "/icons");
 
     let cacheDir = GLib.build_filenamev([GLib.get_user_cache_dir(), Me.metadata.uuid]);

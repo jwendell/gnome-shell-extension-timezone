@@ -56,20 +56,20 @@ var Avatar = new Lang.Class({
     },
 
     _createPersonWidget: function() {
-        this._expandBox = new St.Bin();
+        this._expandBox = new St.Bin({x_expand: true, y_expand: true});
         if (!this._person.avatar) {
             this._defaultAvatarIcon = new St.Icon({ icon_name: 'avatar-default-symbolic'});
             this._expandBox.child = this._defaultAvatarIcon;
         }
-        this.actor.add(this._expandBox, {expand: true});
+        this.actor.add_child(this._expandBox);
         this._detailBox = new St.BoxLayout({visible: !this._person.avatar, vertical: true, style_class: 'tzi-avatar-name-box'});
-        this.actor.add(this._detailBox, {x_fill: true});
+        this.actor.add_child(this._detailBox);
 
-        this._nameLabel = new St.Label({text: this._person.getName(), style_class: 'tzi-avatar-name'});
-        this._detailBox.add(this._nameLabel, {expand: true, x_align: St.Align.MIDDLE, x_fill: false});
+        this._nameLabel = new St.Label({text: this._person.getName(), style_class: 'tzi-avatar-name', x_expand: true, y_expand: true, x_align: Clutter.ActorAlign.CENTER});
+        this._detailBox.add_child(this._nameLabel);
 
-        this._cityLabel = new St.Label({text: this._person.city});
-        this._detailBox.add(this._cityLabel, {expand: true, x_align: St.Align.MIDDLE, x_fill: false});
+        this._cityLabel = new St.Label({text: this._person.city, x_expand: true, y_expand: true, x_align: Clutter.ActorAlign.CENTER});
+        this._detailBox.add_child(this._cityLabel);
     },
 
     _onEnterEvent: function(event) {

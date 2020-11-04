@@ -108,8 +108,8 @@ var TimezoneIndicator = new Lang.Class({
     },
 
     _createInfoLine: function() {
-        let box = new St.BoxLayout();
-        this._mainBox.add(box, {expand: true, x_fill: false, x_align: St.Align.MIDDLE});
+        let box = new St.BoxLayout({x_expand: true, y_expand: true, x_align: Clutter.ActorAlign.CENTER});
+        this._mainBox.add_child(box);
 
         this._infoLabel = new St.Button({reactive: true, track_hover: true, style_class: 'datemenu-today-button'});
         this._infoLabel.connect('clicked', Lang.bind(this, function () {
@@ -136,19 +136,18 @@ var TimezoneIndicator = new Lang.Class({
         timezones.forEach(Lang.bind(this, function(tz) {
             let tzBox = new St.BoxLayout({vertical: true});
             this._tzsBox.add(tzBox);
-            let timeLabel = new St.Label({style_class: 'tzi-time-label'});
+            let timeLabel = new St.Label({style_class: 'tzi-time-label', x_align: Clutter.ActorAlign.CENTER});
             this._timezones.push({tz: tz, label: timeLabel});
 
-            tzBox.add(timeLabel, {x_align: St.Align.MIDDLE, x_fill: false});
+            tzBox.add_child(timeLabel);
 
-            tz.topCityLabel = new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity'});
-            tzBox.add(tz.topCityLabel, {x_align: St.Align.MIDDLE, x_fill: false});
+            tz.topCityLabel = new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity', x_align: Clutter.ActorAlign.CENTER});
+            tzBox.add_child(tz.topCityLabel);
             tz.connect('changed', Lang.bind(this, function() {
                 tz.topCityLabel.text = tz.topCity;
             }));
 
-            tzBox.add(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset'}),
-                      {x_align: St.Align.MIDDLE, x_fill: false});
+            tzBox.add_child(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset', x_align: Clutter.ActorAlign.CENTER}));
 
             let people = tz.getPeople();
             peopleCount += people.length;
@@ -162,10 +161,10 @@ var TimezoneIndicator = new Lang.Class({
                     rowBox = new St.BoxLayout({style: 'spacing: 20px'});
                     tzBox.add(rowBox);
                 }
-                let iconBin = new St.Bin();
+                let iconBin = new St.Bin({x_align: Clutter.ActorAlign.START});
                 let avatar = new Avatar.Avatar(person);
                 iconBin.child = avatar.actor;
-                rowBox.add(iconBin, {x_align: St.Align.START, x_fill: false});
+                rowBox.add_child(iconBin);
             });
         }));
 

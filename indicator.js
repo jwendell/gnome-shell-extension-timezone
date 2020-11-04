@@ -114,7 +114,7 @@ var TimezoneIndicator = new Lang.Class({
         this._infoLabel = new St.Button({reactive: true, track_hover: true, style_class: 'datemenu-today-button'});
         this._infoLabel.connect('clicked', Lang.bind(this, function () {
             this.menu.close();
-            openConfigWidget();
+            Util.spawn(["gnome-extensions", "prefs", Me.metadata.uuid]);
         }));
         box.add(this._infoLabel);
     },
@@ -186,18 +186,3 @@ var TimezoneIndicator = new Lang.Class({
         this._world.getTimezones(Lang.bind(this, this._getTimezonesCB));
     }
 });
-
-function openConfigWidget() {
-    let _appSys = Shell.AppSystem.get_default();
-    let _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
-
-    if (_gsmPrefs.get_state() == _gsmPrefs.SHELL_APP_STATE_RUNNING) {
-        _gsmPrefs.activate();
-    } else {
-        let info = _gsmPrefs.get_app_info();
-        let timestamp = global.display.get_current_time_roundtrip();
-        let metadata = Me.metadata;
-        info.launch_uris([metadata.uuid], global.create_app_launch_context(timestamp, -1));
-    }
-}
-

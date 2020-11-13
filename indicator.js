@@ -114,7 +114,7 @@ var TimezoneIndicator = new Lang.Class({
         this._infoLabel = new St.Button({reactive: true, track_hover: true, style_class: 'datemenu-today-button'});
         this._infoLabel.connect('clicked', Lang.bind(this, function () {
             this.menu.close();
-            Util.spawn(["gnome-extensions", "prefs", Me.metadata.uuid]);
+            ExtensionUtils.openPrefs();
         }));
         box.add(this._infoLabel);
     },

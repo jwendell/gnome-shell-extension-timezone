@@ -13,6 +13,7 @@ var Person = new Lang.Class({
         this.tz = params.tz;
         this.avatar = params.avatar;
         this.github = params.github;
+        this.gitlab = params.gitlab;
         this.gravatar = params.gravatar;
         this._githubToken = params._githubToken;
 
@@ -40,6 +41,11 @@ var Person = new Lang.Class({
             return;
         }
 
+        if (this.gitlab) {
+            this._getGitLabInfo();
+            return;
+        }
+
         if (this.gravatar) {
             this._getGravatarInfo();
             return;
@@ -64,6 +70,40 @@ var Person = new Lang.Class({
                 p = JSON.parse(message.response_body.data);
             } catch (e) {
                 log('Error parsing github response for user %s: %s'.format(this.github, e));
+                return;
+            }
+
+            if (!this.avatar && p.avatar_url)
+                this.avatar = p.avatar_url;
+
+            if (!this.name && p.name)
+                this.name = p.name;
+
+            if (!this.city && p.location)
+                this.city = p.location;
+
+            this.emit('changed');
+        }));
+    },
+
+    _getGitLabInfo: function() {
+        let _httpSession = new Soup.Session({user_agent: 'jwendell/gnome-shell-extension-timezone'});
+        let url = 'https://gitlab.com/api/v4/avatar?email=%s'.format(this.gitlab);
+        let message = new Soup.Message({method: 'GET', uri: new Soup.URI(url)});
+        if (this._gitlabToken) {
+            message.request_headers.append("Authorization", "token " + this._gitlabToken);
+        }
+
+        _httpSession.queue_message(message, Lang.bind(this, function(session, message) {
+            if (message.status_code != Soup.KnownStatusCode.OK) {
+                log('Response code "%d" getting data from gitlab for user email address %s. Got: %s'.format(message.status_code, this.github, message.response_body.data));
+                return;
+            }
+            let p;
+            try {
+                p = JSON.parse(message.response_body.data);
+            } catch (e) {
+                log('Error parsing gitlab email address response for user %s: %s'.format(this.gitlab, e));
                 return;
             }
 

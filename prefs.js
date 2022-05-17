@@ -14,5 +14,5 @@ function buildPrefsWidget() {
         return new prefs3.TimezoneExtensionPrefsWidget3();
     }
 
-    return new prefs4.TimezoneExtensionPrefsWidget4();
+    return new prefs4.TimezoneExtensionPrefsWidget4().box;
 }

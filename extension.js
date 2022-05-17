@@ -24,7 +24,7 @@ let _settingsChangedSignalId;
 function _updatePanelPosition() {
     let panelPosition = _settings.get_string('panel-position');
 
-    let container = _indicator.container;
+    let container = _indicator.actor.container;
     let parent = container.get_parent();
     if (parent)
         parent.remove_actor(container);
@@ -39,7 +39,7 @@ function _updatePanelPosition() {
 
     // Avoid positioning the icon on the leftmost side of the panel.
     let index = panelPosition == 'left' ? box.get_n_children() : 0;
-    box.insert_child_at_index(_indicator.container, index);
+    box.insert_child_at_index(container, index);
 }
 
 function enable() {
@@ -53,7 +53,7 @@ function disable() {
     _settings.disconnect(_settingsChangedSignalId);
     _settings = null;
 
-    _indicator.destroy();
+    _indicator.actor.destroy();
     _indicator = null;
 }
 

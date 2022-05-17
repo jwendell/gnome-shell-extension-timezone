@@ -7,32 +7,31 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 
-const TimezoneExtensionPrefsWidget4 = new GObject.Class({
+var TimezoneExtensionPrefsWidget4 = new GObject.Class({
     Name: 'TimezoneExtension.Prefs4.Widget',
     GTypeName: 'TimezoneExtensionPrefsWidget4',
-    Extends: Gtk.Box,
 
     _init: function(params) {
-        this.parent(params);
-        this.orientation = Gtk.Orientation.VERTICAL;
-        this.margin_start = 12;
-        this.margin_end = 12;
-        this.margin_top = 12;
-        this.margin_bottom = 12;
+        this.box = new Gtk.Box(params);
+        this.box.orientation = Gtk.Orientation.VERTICAL;
+        this.box.margin_start = 12;
+        this.box.margin_end = 12;
+        this.box.margin_top = 12;
+        this.box.margin_bottom = 12;
         this._settings = Convenience.getSettings();
 
-        this.append(new Gtk.Label({ label: '<b>Location for the <i>people.json</i> file</b>',
-                                 use_markup: true, margin_bottom: 6,
-                                 hexpand: true, halign: Gtk.Align.START }));
+        this.box.append(new Gtk.Label({ label: '<b>Location for the <i>people.json</i> file</b>',
+                                      use_markup: true, margin_bottom: 6,
+                                      hexpand: true, halign: Gtk.Align.START }));
 
-        this.append(this._createEntry());
+        this.box.append(this._createEntry());
 
-        this.append(new Gtk.Label({ label: '<small>Remote files, e.g., starting with <i>http://</i> are also valid. <a href="https://github.com/jwendell/gnome-shell-extension-timezone/blob/master/editing-people.md">Need help with JSON?</a></small>',
-                                 use_markup: true, margin_bottom: 6,
-                                 hexpand: true, halign: Gtk.Align.START}));
+        this.box.append(new Gtk.Label({ label: '<small>Remote files, e.g., starting with <i>http://</i> are also valid. <a href="https://github.com/jwendell/gnome-shell-extension-timezone/blob/master/editing-people.md">Need help with JSON?</a></small>',
+                                      use_markup: true, margin_bottom: 6,
+                                      hexpand: true, halign: Gtk.Align.START}));
 
-        this.append(this._createHighlightBox());
-        this.append(this._createPanelConfiguration());
+        this.box.append(this._createHighlightBox());
+        this.box.append(this._createPanelConfiguration());
     },
 
     _createEntry: function() {

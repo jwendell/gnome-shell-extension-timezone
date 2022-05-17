@@ -20,18 +20,17 @@ const Convenience = Me.imports.convenience;
 
 var TimezoneIndicator = new Lang.Class({
     Name: 'TimezoneIndicator',
-    Extends: PanelMenu.Button,
 
     _init: function() {
-        this.parent(0.5, _("Timezone Indicator"));
+        this.actor = new PanelMenu.Button(0.5, _("Timezone Indicator"));
 
         this._icon = new St.Icon({style_class: 'system-status-icon'});
         this._icon.gicon = Gio.icon_new_for_string(`${Me.path}/icons/timezone@jwendell-symbolic.svg`);
         this.actor.add_actor(this._icon);
 
-        Main.panel.menuManager.addMenu(this.menu);
+        Main.panel.menuManager.addMenu(this.actor.menu);
         this._item = new PopupMenu.PopupBaseMenuItem({reactive: false});
-        this.menu.addMenuItem(this._item);
+        this.actor.menu.addMenuItem(this._item);
 
         this._createWorld();
 
@@ -113,7 +112,7 @@ var TimezoneIndicator = new Lang.Class({
 
         this._infoLabel = new St.Button({reactive: true, track_hover: true, style_class: 'datemenu-today-button'});
         this._infoLabel.connect('clicked', Lang.bind(this, function () {
-            this.menu.close();
+            this.actor.menu.close();
             ExtensionUtils.openPrefs();
         }));
         box.add(this._infoLabel);

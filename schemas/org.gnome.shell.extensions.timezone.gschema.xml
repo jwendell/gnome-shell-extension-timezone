@@ -11,7 +11,7 @@
 			<description>Defaults to "center"</description>
 		</key>
 		<key name="github-token" type="s">
-			<default>"afc824b68e79d26d3ec3cbf88a79d38d7c8ced2d"</default>
+			<default>""</default>
 			<summary>Token for making HTTP requests to github API</summary>
 			<description>Optional. If not present requests are limited to 60 per hour. Create yours here: https://github.com/settings/tokens</description>
 		</key>

@@ -44,7 +44,7 @@ var TimezoneExtensionPrefsWidget4 = new GObject.Class({
             secondary_icon_tooltip_text: "Pick a file using a file chooser"
         });
         this._entry.connect("icon-release", Lang.bind(this, function() {
-            this._chooser.transient_for = this.get_root()
+            this._chooser.transient_for = this.box.get_root()
             this._chooser.show();
         }));
 

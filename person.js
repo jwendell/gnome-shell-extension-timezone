@@ -1,3 +1,5 @@
+imports.gi.versions.Soup = "3.0";
+
 const Lang = imports.lang;
 const Signals = imports.signals;
 const GLib = imports.gi.GLib;
@@ -48,20 +50,24 @@ var Person = new Lang.Class({
 
     _getGithubInfo: function() {
         let _httpSession = new Soup.Session({user_agent: 'jwendell/gnome-shell-extension-timezone'});
-        let url = 'https://api.github.com/users/%s'.format(this.github);
-        let message = new Soup.Message({method: 'GET', uri: new Soup.URI(url)});
+        let message = Soup.Message.new('GET', 'https://api.github.com/users/%s'.format(this.github));
         if (this._githubToken) {
             message.request_headers.append("Authorization", "token " + this._githubToken);
         }
 
-        _httpSession.queue_message(message, Lang.bind(this, function(session, message) {
-            if (message.status_code != Soup.KnownStatusCode.OK) {
-                log('Response code "%d" getting data from github for user %s. Got: %s'.format(message.status_code, this.github, message.response_body.data));
+        _httpSession.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null, Lang.bind(this, function(session, result) {
+            if (message.get_status() != Soup.Status.OK) {
+                log('Response code "%d" getting data from github for user %s.'.format(message.get_status(), this.github));
                 return;
             }
+
             let p;
+            let bytes = session.send_and_read_finish(result);
+            let decoder = new TextDecoder("utf-8");
+            let response = decoder.decode(bytes.get_data());
+
             try {
-                p = JSON.parse(message.response_body.data);
+                p = JSON.parse(response);
             } catch (e) {
                 log('Error parsing github response for user %s: %s'.format(this.github, e));
                 return;

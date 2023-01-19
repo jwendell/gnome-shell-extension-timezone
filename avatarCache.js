@@ -1,3 +1,5 @@
+imports.gi.versions.Soup = "3.0";
+
 const Lang = imports.lang;
 const Signals = imports.signals;
 const GLib = imports.gi.GLib;
@@ -26,23 +28,24 @@ var AvatarCache = new Lang.Class({
         }
 
         let _httpSession = new Soup.Session({user_agent: 'jwendell/gnome-shell-extension-timezone'});
-        let uri = new Soup.URI(this._person.avatar);
-        if (uri == null) {
+        let message = Soup.Message.new('GET', this._person.avatar);
+        if (message == null) {
             log('Avatar for %s (%s) is not valid.'.format(this._person.getName(), this._person.avatar));
             cb(false);
             return;
         }
 
-        let message = new Soup.Message({method: 'GET', uri: uri});
-
-        _httpSession.queue_message(message, Lang.bind(this, function(session, message) {
-            if (message.status_code != Soup.KnownStatusCode.OK) {
-                log('Response code "%d" getting avatar for user %s. Got: %s'.format(message.status_code, this._person.getName(), message.response_body.data));
+        _httpSession.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null, Lang.bind(this, function(session, result) {
+            if (message.get_status() != Soup.Status.OK) {
+                log('Response code "%d" getting avatar for user %s'.format(message.get_status(), this._person.getName()));
                 cb(false);
                 return;
             }
+
+            let bytes = session.send_and_read_finish(result);
             let filename = this.getFilename();
-            GLib.file_set_contents(filename, message.response_body.flatten().get_as_bytes().get_data());
+
+            GLib.file_set_contents(filename, bytes.get_data());
             cb(true);
         }));
 

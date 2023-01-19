@@ -1,5 +1,3 @@
-imports.gi.versions.Soup = "3.0";
-
 const Lang = imports.lang;
 const Signals = imports.signals;
 const GLib = imports.gi.GLib;

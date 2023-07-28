@@ -18,6 +18,13 @@ const World = Me.imports.world;
 const Avatar = Me.imports.avatar;
 const Convenience = Me.imports.convenience;
 
+function _getMonitorManager() {
+    if (global.backend.get_monitor_manager !== undefined)
+        return global.backend.get_monitor_manager();
+    else
+        return Meta.MonitorManager.get();
+}
+
 var TimezoneIndicator = new Lang.Class({
     Name: 'TimezoneIndicator',
 
@@ -47,7 +54,7 @@ var TimezoneIndicator = new Lang.Class({
 		this._clock.disconnect(this._clockChangedSignalId);
 		this._settings.disconnect(this._settingsChangedSignalId);
 
-        let monitorManager = Meta.MonitorManager.get();
+        let monitorManager = _getMonitorManager();
         monitorManager.disconnect(this._monitorChangedSignalId)
 
 		this.parent();
@@ -55,7 +62,7 @@ var TimezoneIndicator = new Lang.Class({
 
     _setupScreen: function() {
         this._screenHeight = global.screen_height;
-        let monitorManager = Meta.MonitorManager.get();
+        let monitorManager = _getMonitorManager();
         this._monitorChangedSignalId = monitorManager.connect('monitors-changed', Lang.bind(this, function() {
             if (global.screen_height == this._screenHeight)
                 return;

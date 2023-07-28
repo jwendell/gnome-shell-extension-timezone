@@ -10,8 +10,8 @@ const Indicator = Me.imports.indicator;
 
 function init(extensionMeta) {
     let theme = new Gtk.IconTheme();
-    theme.set_custom_theme(St.Settings.get().gtk_icon_theme);
-    theme.append_search_path(extensionMeta.path + "/icons");
+    theme.set_theme_name(St.Settings.get().gtk_icon_theme);
+    theme.add_search_path(extensionMeta.path + "/icons");
 
     let cacheDir = GLib.build_filenamev([GLib.get_user_cache_dir(), Me.metadata.uuid]);
     GLib.mkdir_with_parents(cacheDir, parseInt("0755", 8));

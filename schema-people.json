@@ -29,6 +29,10 @@
 				"type": "string",
 				"description": "Gravatar ID (person's email)"
 			},
+			"gitlab": {
+				"type": "string",
+				"description": "GitLab avatar (person's email)"
+			},
 			"github": {
 				"type": "string",
 				"description": "GitHub ID"

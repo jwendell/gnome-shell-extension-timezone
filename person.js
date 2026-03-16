@@ -1,15 +1,22 @@
-const Lang = imports.lang;
-const Signals = imports.signals;
-const GLib = imports.gi.GLib;
-const Soup = imports.gi.Soup;
+import GLib from 'gi://GLib';
+import Soup from 'gi://Soup?version=3.0';
+import * as Signals from 'resource:///org/gnome/shell/misc/signals.js';
 
-var Person = new Lang.Class({
-    Name: 'Person',
+import {md5Hash, getSharedSession} from './util.js';
 
-    _init: function(params) {
+let peopleCount = 0;
+
+export function resetPeopleCount() {
+    peopleCount = 0;
+}
+
+export class Person extends Signals.EventEmitter {
+    constructor(params) {
+        super();
+
         this.id = ++peopleCount;
-        this.name = params.name || "";
-        this.city = params.city || "";
+        this.name = params.name || '';
+        this.city = params.city || '';
         this.tz = params.tz;
         this.avatar = params.avatar;
         this.github = params.github;
@@ -18,19 +25,19 @@ var Person = new Lang.Class({
 
         this._insertDateTime();
         this._getRemoteInfo();
-    },
+    }
 
-	getName: function() {
-		return this.name ? this.name : (this.github ? this.github : 'Person ' + this.id);
-	},
+    getName() {
+        return this.name || (this.github ? this.github : `Person ${this.id}`);
+    }
 
-    _insertDateTime: function() {
+    _insertDateTime() {
         this.tz1 = GLib.TimeZone.new(this.tz);
         this.now = GLib.DateTime.new_now(this.tz1);
-        this.offset = this.now.get_utc_offset() / (3600*1000*1000);
-    },
+        this.offset = this.now.get_utc_offset() / (3600 * 1000 * 1000);
+    }
 
-    _getRemoteInfo: function() {
+    _getRemoteInfo() {
         // We have all data, no need to retrieve external data
         if (this.name && this.city && this.avatar)
             return;
@@ -42,61 +49,55 @@ var Person = new Lang.Class({
 
         if (this.gravatar) {
             this._getGravatarInfo();
-            return;
         }
-    },
+    }
 
-    _getGithubInfo: function() {
-        let _httpSession = new Soup.Session({user_agent: 'jwendell/gnome-shell-extension-timezone'});
-        let message = Soup.Message.new('GET', 'https://api.github.com/users/%s'.format(this.github));
-        if (this._githubToken) {
-            message.request_headers.append("Authorization", "token " + this._githubToken);
-        }
+    _getGithubInfo() {
+        const session = getSharedSession();
+        const url = `https://api.github.com/users/${this.github}`;
+        const message = Soup.Message.new('GET', url);
 
-        _httpSession.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null, Lang.bind(this, function(session, result) {
-            if (message.get_status() != Soup.Status.OK) {
-                log('Response code "%d" getting data from github for user %s.'.format(message.get_status(), this.github));
-                return;
+        if (this._githubToken)
+            message.get_request_headers().append('Authorization', `token ${this._githubToken}`);
+
+        session.send_and_read_async(message, GLib.PRIORITY_DEFAULT,
+            null,
+            (sess, result) => {
+                if (message.get_status() !== Soup.Status.OK) {
+                    log(`Response code "${message.get_status()}" getting data from github for user ${this.github}`);
+                    return;
+                }
+
+                let p;
+                try {
+                    const bytes = sess.send_and_read_finish(result);
+                    const decoder = new TextDecoder('utf-8');
+                    const responseData = decoder.decode(bytes.get_data());
+                    p = JSON.parse(responseData);
+                } catch (e) {
+                    log(`Error parsing github response for user ${this.github}: ${e}`);
+                    return;
+                }
+
+                if (!this.avatar && p.avatar_url)
+                    this.avatar = p.avatar_url;
+
+                if (!this.name && p.name)
+                    this.name = p.name;
+
+                if (!this.city && p.location)
+                    this.city = p.location;
+
+                this.emit('changed');
             }
+        );
+    }
 
-            let p;
-            let bytes = session.send_and_read_finish(result);
-            let decoder = new TextDecoder("utf-8");
-            let response = decoder.decode(bytes.get_data());
-
-            try {
-                p = JSON.parse(response);
-            } catch (e) {
-                log('Error parsing github response for user %s: %s'.format(this.github, e));
-                return;
-            }
-
-            if (!this.avatar && p.avatar_url)
-                this.avatar = p.avatar_url;
-
-            if (!this.name && p.name)
-                this.name = p.name;
-
-            if (!this.city && p.location)
-                this.city = p.location;
-
-            this.emit('changed');
-        }));
-    },
-
-    _getGravatarInfo: function() {
+    _getGravatarInfo() {
         if (this.avatar)
             return;
 
-        let email = this.gravatar.trim().toLowerCase();
-        let hash = GLib.compute_checksum_for_string(GLib.ChecksumType.MD5, email, -1);
-        this.avatar = 'http://cdn.libravatar.org/avatar/' + hash;
-    },
-
-});
-Signals.addSignalMethods(Person.prototype);
-
-let peopleCount = 0;
-function resetPeopleCount() {
-	peopleCount = 0;
-};
+        const email = this.gravatar.trim().toLowerCase();
+        this.avatar = `http://cdn.libravatar.org/avatar/${md5Hash(email)}`;
+    }
+}

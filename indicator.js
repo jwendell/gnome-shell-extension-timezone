@@ -1,131 +1,134 @@
-const GLib = imports.gi.GLib;
-const St = imports.gi.St;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
-const Panel = imports.ui.panel;
-const Clutter = imports.gi.Clutter;
-const Lang = imports.lang;
-const Gio = imports.gi.Gio;
-const Main = imports.ui.main;
-const Meta = imports.gi.Meta;
-const GnomeDesktop = imports.gi.GnomeDesktop;
-const Shell = imports.gi.Shell;
-const Util = imports.misc.util;
+import GLib from 'gi://GLib';
+import St from 'gi://St';
+import Gio from 'gi://Gio';
+import GObject from 'gi://GObject';
+import Clutter from 'gi://Clutter';
+import Meta from 'gi://Meta';
+import GnomeDesktop from 'gi://GnomeDesktop';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const World = Me.imports.world;
-const Avatar = Me.imports.avatar;
-const Convenience = Me.imports.convenience;
+import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
-function _getMonitorManager() {
-    if (global.backend.get_monitor_manager !== undefined)
-        return global.backend.get_monitor_manager();
-    else
-        return Meta.MonitorManager.get();
-}
+import {World} from './world.js';
+import {Avatar} from './avatar.js';
+import {formatTime} from './util.js';
 
-var TimezoneIndicator = new Lang.Class({
-    Name: 'TimezoneIndicator',
+export const TimezoneIndicator = GObject.registerClass(
+class TimezoneIndicator extends PanelMenu.Button {
+    _init(extension) {
+        super._init(0.5, _('Timezone Indicator'));
 
-    _init: function() {
-        this.actor = new PanelMenu.Button(0.5, _("Timezone Indicator"));
+        this._extension = extension;
+        this._settings = extension.getSettings();
+        this._timezones = [];
 
         this._icon = new St.Icon({style_class: 'system-status-icon'});
-        this._icon.gicon = Gio.icon_new_for_string(`${Me.path}/icons/timezone@jwendell-symbolic.svg`);
-        this.actor.add_actor(this._icon);
+        this._icon.gicon = Gio.icon_new_for_string(`${extension.path}/icons/timezone@jwendell-symbolic.svg`);
+        this.add_child(this._icon);
 
-        Main.panel.menuManager.addMenu(this.actor.menu);
+        Main.panel.menuManager.addMenu(this.menu);
         this._item = new PopupMenu.PopupBaseMenuItem({reactive: false});
-        this.actor.menu.addMenuItem(this._item);
+        this.menu.addMenuItem(this._item);
 
         this._createWorld();
 
         this._clock = new GnomeDesktop.WallClock();
-        this._clockChangedSignalId = this._clock.connect('notify::clock', Lang.bind(this, this._updateTimezones));
+        this._clockChangedId = this._clock.connect('notify::clock', () => this._updateTimezones());
 
-        this._settings = Convenience.getSettings();
-        this._settingsChangedSignalId = this._settings.connect('changed::path-to-people-json', Lang.bind(this, this._createWorld));
+        this._settingsChangedId = this._settings.connect('changed::path-to-people-json',
+            () => this._createWorld());
 
         this._setupScreen();
-    },
+    }
 
-	destroy: function() {
-		this._clock.disconnect(this._clockChangedSignalId);
-		this._settings.disconnect(this._settingsChangedSignalId);
+    destroy() {
+        if (this._clockChangedId) {
+            this._clock.disconnect(this._clockChangedId);
+            this._clockChangedId = null;
+        }
 
-        let monitorManager = _getMonitorManager();
-        monitorManager.disconnect(this._monitorChangedSignalId)
+        if (this._settingsChangedId) {
+            this._settings.disconnect(this._settingsChangedId);
+            this._settingsChangedId = null;
+        }
 
-		this.parent();
-	},
+        if (this._monitorChangedId) {
+            Main.layoutManager.disconnect(this._monitorChangedId);
+            this._monitorChangedId = null;
+        }
 
-    _setupScreen: function() {
+        super.destroy();
+    }
+
+    _setupScreen() {
         this._screenHeight = global.screen_height;
-        let monitorManager = _getMonitorManager();
-        this._monitorChangedSignalId = monitorManager.connect('monitors-changed', Lang.bind(this, function() {
-            if (global.screen_height == this._screenHeight)
+        this._monitorChangedId = Main.layoutManager.connect('monitors-changed', () => {
+            if (global.screen_height === this._screenHeight)
                 return;
             log('Resolution changed, recreating timezone UI');
             this._screenHeight = global.screen_height;
             this._createUI();
-        }));
-    },
+        });
+    }
 
-    _createWorld: function() {
+    _createWorld() {
         if (this._world) {
-            this._world.disconnect(this._worldChangedSignalId)
+            this._world.disconnect(this._worldChangedId);
+            this._world = null;
         }
 
-        this._world = new World.World;
-        this._worldChangedSignalId = this._world.connect('changed', Lang.bind(this, this._createUI));
+        this._world = new World(this._extension);
+        this._worldChangedId = this._world.connect('changed', () => this._createUI());
         this._createUI();
-    },
+    }
 
-    _updateTimezones: function() {
-        if (!this._timezones) {
+    _updateTimezones() {
+        if (!this._timezones)
             return;
-        }
 
-        this._timezones.forEach(function (timezone) {
-            let time = GLib.DateTime.new_now(timezone.tz.tz1);
-            let settings = Convenience.getSettings();
-            const start = settings.get_int("working-hours-start");
-            const end = settings.get_int("working-hours-end");
+        const start = this._settings.get_int('working-hours-start');
+        const end = this._settings.get_int('working-hours-end');
+        const enableWorkingHours = this._settings.get_boolean('enable-working-hours');
 
-            timezone.label.text = Util.formatTime(time, { timeOnly: true });
+        for (const timezone of this._timezones) {
+            const time = GLib.DateTime.new_now(timezone.tz.tz1);
+            timezone.label.text = formatTime(time);
             timezone.label.style_class = 'tzi-time-label';
 
             if (timezone.tz.sameAsSystem)
                 timezone.label.style_class += ' tzi-time-label-system';
 
-            if (settings.get_boolean("enable-working-hours")) {
+            if (enableWorkingHours) {
                 timezone.label.style_class += ' tzi-time-label-active';
+                const hour = time.get_hour();
 
                 if (start < end) {
-                    if (time.get_hour() < start || time.get_hour() >= end)
+                    if (hour < start || hour >= end)
                         timezone.label.style_class += ' tzi-time-label-inactive';
                 } else {
-                    if (time.get_hour() >= end && time.get_hour() < start)
+                    if (hour >= end && hour < start)
                         timezone.label.style_class += ' tzi-time-label-inactive';
                 }
             }
-        });
-    },
+        }
+    }
 
-    _createInfoLine: function() {
-        let box = new St.BoxLayout({x_expand: true, y_expand: true, x_align: Clutter.ActorAlign.CENTER});
+    _createInfoLine() {
+        const box = new St.BoxLayout({x_expand: true, y_expand: true, x_align: Clutter.ActorAlign.CENTER});
         this._mainBox.add_child(box);
 
         this._infoLabel = new St.Button({reactive: true, track_hover: true, style_class: 'datemenu-today-button'});
-        this._infoLabel.connect('clicked', Lang.bind(this, function () {
-            this.actor.menu.close();
+        this._infoLabel.connect('clicked', () => {
+            this.menu.close();
             ExtensionUtils.openPrefs();
-        }));
-        box.add(this._infoLabel);
-    },
+        });
+        box.add_child(this._infoLabel);
+    }
 
-    _getTimezonesCB: function(timezones) {
+    _getTimezonesCB(timezones) {
         this._timezones = [];
 
         if (timezones.error) {
@@ -134,61 +137,61 @@ var TimezoneIndicator = new Lang.Class({
         }
 
         let peopleCount = 0;
+        const availableHeight = global.screen_height - 250;
+        const avatarWidth = 70;
+        const maxAvatarsColumn = Math.floor(availableHeight / avatarWidth);
 
-        let availableHeight = global.screen_height - 250;
-        let avatarWidth = 70;
-        let maxAvatarsColumn = Math.floor(availableHeight / avatarWidth);
+        for (const tz of timezones) {
+            const tzBox = new St.BoxLayout({vertical: true});
+            this._tzsBox.add_child(tzBox);
 
-        timezones.forEach(Lang.bind(this, function(tz) {
-            let tzBox = new St.BoxLayout({vertical: true});
-            this._tzsBox.add(tzBox);
-            let timeLabel = new St.Label({style_class: 'tzi-time-label', x_align: Clutter.ActorAlign.CENTER});
-            this._timezones.push({tz: tz, label: timeLabel});
-
+            const timeLabel = new St.Label({style_class: 'tzi-time-label', x_align: Clutter.ActorAlign.CENTER});
+            this._timezones.push({tz, label: timeLabel});
             tzBox.add_child(timeLabel);
 
             tz.topCityLabel = new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity', x_align: Clutter.ActorAlign.CENTER});
             tzBox.add_child(tz.topCityLabel);
-            tz.connect('changed', Lang.bind(this, function() {
+
+            tz.connect('changed', () => {
                 tz.topCityLabel.text = tz.topCity;
-            }));
+            });
 
             tzBox.add_child(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset', x_align: Clutter.ActorAlign.CENTER}));
 
-            let people = tz.getPeople();
+            const people = tz.getPeople();
             peopleCount += people.length;
 
-            let columns = Math.ceil(people.length / maxAvatarsColumn);
+            const columns = Math.ceil(people.length / maxAvatarsColumn);
             let i = 0;
             let rowBox;
 
-            people.forEach(function(person) {
-                if (i++ % columns == 0) {
+            for (const person of people) {
+                if (i++ % columns === 0) {
                     rowBox = new St.BoxLayout({style: 'spacing: 20px'});
-                    tzBox.add(rowBox);
+                    tzBox.add_child(rowBox);
                 }
-                let iconBin = new St.Bin({x_align: Clutter.ActorAlign.START});
-                let avatar = new Avatar.Avatar(person);
+                const iconBin = new St.Bin({x_align: Clutter.ActorAlign.START});
+                const avatar = new Avatar(person);
                 iconBin.child = avatar.actor;
                 rowBox.add_child(iconBin);
-            });
-        }));
+            }
+        }
 
-        this._infoLabel.label = '%d people distributed in %d time zones...'.format(peopleCount, timezones.length);
+        this._infoLabel.label = _('%d people distributed in %d time zones...').format(peopleCount, timezones.length);
         this._updateTimezones();
-    },
+    }
 
-    _createUI: function() {
+    _createUI() {
         if (this._mainBox) {
-            this._item.actor.remove_actor(this._mainBox);
+            this._item.remove_child(this._mainBox);
         }
 
         this._mainBox = new St.BoxLayout({vertical: true});
         this._tzsBox = new St.BoxLayout({style_class: 'tz1-people-box'});
-        this._mainBox.add(this._tzsBox);
+        this._mainBox.add_child(this._tzsBox);
         this._createInfoLine();
-        this._item.actor.add_actor(this._mainBox);
+        this._item.add_child(this._mainBox);
 
-        this._world.getTimezones(Lang.bind(this, this._getTimezonesCB));
+        this._world.getTimezones(timezones => this._getTimezonesCB(timezones));
     }
 });

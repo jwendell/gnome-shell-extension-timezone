@@ -63,3 +63,43 @@ field. GitHub doesn't provide one for us. See **_torvalds_** in the example abov
 Individual fields have preference over remote providers. For instance, if you fill
 the fields `name` and `github`, we will use the name you provided, not the github
 one (although we still use github to fetch other data, like avatar and city).
+
+# Development
+
+## Tested With
+
+- Fedora 43
+- GNOME 49.4 / GNOME Shell 49.4
+
+## Testing in a Nested GNOME Shell (GNOME 49+)
+
+GNOME 49 removed the `--nested` option. Use the Mutter Development Kit (`--devkit`) instead:
+
+```bash
+# Install required package (Fedora)
+sudo dnf install mutter-devel
+
+# Run nested shell with custom resolution
+env MUTTER_DEBUG_DUMMY_MODE_SPECS=1920x1080 \
+    dbus-run-session gnome-shell --devkit --wayland
+
+# Inside the nested shell, install and enable the extension
+gnome-extensions install --force ~/.local/share/gnome-shell/extensions/timezone@jwendell.zip
+gnome-extensions enable timezone@jwendell
+
+# Monitor logs (in another terminal)
+journalctl -f -o cat /usr/bin/gnome-shell | grep -i timezone
+```
+
+## Quick Development Cycle
+
+```bash
+# Create distributable zip
+./create-zip.sh
+
+# Reload extension after code changes
+gnome-extensions disable timezone@jwendell && gnome-extensions enable timezone@jwendell
+
+# Open preferences dialog
+gnome-extensions prefs timezone@jwendell
+```

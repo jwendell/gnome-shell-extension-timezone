@@ -64,6 +64,25 @@ Individual fields have preference over remote providers. For instance, if you fi
 the fields `name` and `github`, we will use the name you provided, not the github
 one (although we still use github to fetch other data, like avatar and city).
 
+## GitHub Token (Optional)
+
+When using the `github` field, the extension fetches user data from GitHub's API.
+GitHub limits unauthenticated API requests to **60 per hour**. If you have many
+team members or frequently reload the extension, you may hit this limit.
+
+To increase the limit to **5000 requests per hour**, you can provide a GitHub
+personal access token:
+
+1. Create a token at https://github.com/settings/tokens
+   - No special permissions are required (public repo access is sufficient)
+2. Open the extension preferences dialog:
+   - Right-click the extension icon → Preferences
+   - Or run: `gnome-extensions prefs timezone@jwendell`
+3. Paste your token in the "GitHub Token" field
+4. Click the Apply/Close button
+
+The token is stored securely in GNOME Settings and is only used for GitHub API requests.
+
 # Development
 
 ## Tested With
@@ -103,3 +122,37 @@ gnome-extensions disable timezone@jwendell && gnome-extensions enable timezone@j
 # Open preferences dialog
 gnome-extensions prefs timezone@jwendell
 ```
+
+
+## Running Tests
+
+The test suite helps detect API breakages when GNOME Shell updates:
+
+```bash
+# Run all tests
+./tests/run-tests.sh
+
+# Run specific test file
+./tests/run-tests.sh test-util.js
+
+# Or run directly with GJS
+gjs -m tests/test-runner.js
+```
+
+### Test Coverage
+
+| Test File | Purpose |
+|-----------|---------|
+| `test-util.js` | Utility functions (time formatting, offsets, MD5) |
+| `test-timezone.js` | GLib.TimeZone and GLib.DateTime API compatibility |
+| `test-people-parsing.js` | JSON parsing and person data validation |
+| `test-gnome-apis.js` | GNOME API availability (GLib, Gio, Soup, GTK) |
+| `test-settings.js` | Settings schema validation |
+| `test-soup3-patterns.js` | Soup 3.0 async patterns, GitHub API headers, Gio.Cancellable lifecycle |
+
+Tests verify:
+- ESM imports work correctly (`gi://GLib`, `gi://Soup`)
+- GObject class registration API
+- Soup 3.0 HTTP client API (`send_and_read_async`)
+- GTK 4 widget API for preferences
+- Settings schema structure and default values

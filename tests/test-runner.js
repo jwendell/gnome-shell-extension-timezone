@@ -200,7 +200,8 @@ async function runAllTests() {
         'test-timezone.js',
         'test-people-parsing.js',
         'test-gnome-apis.js',
-        'test-settings.js'
+        'test-settings.js',
+        'test-soup3-patterns.js'
     ];
 
     for (const file of testFiles) {

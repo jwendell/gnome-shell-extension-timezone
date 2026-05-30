@@ -11,6 +11,7 @@ export class Avatar {
     constructor(person, extension) {
         this._person = person;
         this._extension = extension;
+        this._destroyed = false;
 
         const scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
 
@@ -29,20 +30,15 @@ export class Avatar {
 
         this._updateInfo();
         this._changedId = this._person.connect('changed', () => this._updateInfo());
+
+        this.actor.connect('destroy', () => this._onDestroy());
     }
 
-    destroy() {
+    _onDestroy() {
+        this._destroyed = true;
         if (this._changedId) {
             this._person.disconnect(this._changedId);
             this._changedId = null;
-        }
-        if (this._enterEventId) {
-            this.actor.disconnect(this._enterEventId);
-            this._enterEventId = null;
-        }
-        if (this._leaveEventId) {
-            this.actor.disconnect(this._leaveEventId);
-            this._leaveEventId = null;
         }
         this._cache = null;
     }
@@ -52,7 +48,7 @@ export class Avatar {
         this._cityLabel.text = this._person.city;
 
         this._cache.fetchAvatar(success => {
-            if (success)
+            if (success && !this._destroyed)
                 this._setBackground();
         });
     }

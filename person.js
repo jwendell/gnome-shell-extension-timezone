@@ -63,19 +63,26 @@ export class Person extends Signals.EventEmitter {
         session.send_and_read_async(message, GLib.PRIORITY_DEFAULT,
             null,
             (sess, result) => {
+                let bytes;
+                try {
+                    bytes = sess.send_and_read_finish(result);
+                } catch (e) {
+                    log(`[timezone] Failed to fetch GitHub data for user ${this.github}: ${e.message}`);
+                    return;
+                }
+
                 if (message.get_status() !== Soup.Status.OK) {
-                    log(`Response code "${message.get_status()}" getting data from github for user ${this.github}`);
+                    log(`[timezone] GitHub API returned ${message.get_status()} for user ${this.github}`);
                     return;
                 }
 
                 let p;
                 try {
-                    const bytes = sess.send_and_read_finish(result);
                     const decoder = new TextDecoder('utf-8');
                     const responseData = decoder.decode(bytes.get_data());
                     p = JSON.parse(responseData);
                 } catch (e) {
-                    log(`Error parsing github response for user ${this.github}: ${e}`);
+                    log(`[timezone] Error parsing GitHub response for user ${this.github}: ${e.message}`);
                     return;
                 }
 

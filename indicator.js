@@ -9,7 +9,6 @@ import GnomeDesktop from 'gi://GnomeDesktop';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import {World} from './world.js';
@@ -123,7 +122,7 @@ class TimezoneIndicator extends PanelMenu.Button {
         this._infoLabel = new St.Button({reactive: true, track_hover: true, style_class: 'datemenu-today-button'});
         this._infoLabel.connect('clicked', () => {
             this.menu.close();
-            ExtensionUtils.openPrefs();
+            this._extension.openPreferences();
         });
         box.add_child(this._infoLabel);
     }

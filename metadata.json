@@ -1,5 +1,5 @@
 {
-	"shell-version": ["49"],
+	"shell-version": ["49", "50"],
 	"uuid": "timezone@jwendell",
 	"description": "See people with their timezones from the Shell",
 	"name": "Timezone",

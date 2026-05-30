@@ -35,20 +35,28 @@ export class AvatarCache {
 
         session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null,
             (sess, result) => {
+                let bytes;
+                try {
+                    bytes = sess.send_and_read_finish(result);
+                } catch (e) {
+                    log(`[timezone] Failed to fetch avatar for ${this._person.getName()}: ${e.message}`);
+                    cb(false);
+                    return;
+                }
+
                 if (message.get_status() !== Soup.Status.OK) {
-                    log(`Response code "${message.get_status()}" getting avatar for user ${this._person.getName()}`);
+                    log(`[timezone] Avatar fetch returned ${message.get_status()} for ${this._person.getName()}`);
                     cb(false);
                     return;
                 }
 
                 try {
-                    const bytes = sess.send_and_read_finish(result);
                     const filename = this.getFilename();
                     const data = bytes.get_data();
                     GLib.file_set_contents(filename, data);
                     cb(true);
                 } catch (e) {
-                    log(`Error saving avatar for ${this._person.getName()}: ${e}`);
+                    log(`[timezone] Error saving avatar for ${this._person.getName()}: ${e.message}`);
                     cb(false);
                 }
             }

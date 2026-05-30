@@ -11,6 +11,8 @@ zip -r -q "${OUTPUT}" . \
     --exclude "backlog/*" \
     --exclude "claudedocs/*" \
     --exclude ".claude/*" \
+    --exclude "tests/*" \
+    --exclude "schemas/gschemas.compiled" \
     --exclude "*.md" \
     --exclude "*.sh" \
     --exclude "*.txt"

@@ -151,9 +151,10 @@ class TimezoneIndicator extends PanelMenu.Button {
             tz.topCityLabel = new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity', x_align: Clutter.ActorAlign.CENTER});
             tzBox.add_child(tz.topCityLabel);
 
-            tz.connect('changed', () => {
+            const tzChangedId = tz.connect('changed', () => {
                 tz.topCityLabel.text = tz.topCity;
             });
+            this._tzSignalIds.push({tz, id: tzChangedId});
 
             tzBox.add_child(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset', x_align: Clutter.ActorAlign.CENTER}));
 
@@ -181,6 +182,12 @@ class TimezoneIndicator extends PanelMenu.Button {
     }
 
     _createUI() {
+        if (this._tzSignalIds) {
+            for (const {tz, id} of this._tzSignalIds)
+                tz.disconnect(id);
+        }
+        this._tzSignalIds = [];
+
         if (this._mainBox) {
             this._mainBox.destroy();
             this._mainBox = null;

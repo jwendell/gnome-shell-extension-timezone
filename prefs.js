@@ -158,7 +158,7 @@ export default class TimezonePreferences extends ExtensionPreferences {
             label: _('Open Guide'),
         });
         helpButton.connect('clicked', () => {
-            Gtk.show_uri(window, 'https://github.com/jwendell/gnome-shell-extension-timezone/blob/master/editing-people.md');
+            Gtk.show_uri(window, 'https://github.com/jwendell/gnome-shell-extension-timezone/blob/master/editing-people.md', 0);
         });
         helpRow.add_suffix(helpButton);
     }

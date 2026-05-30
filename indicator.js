@@ -183,7 +183,8 @@ class TimezoneIndicator extends PanelMenu.Button {
 
     _createUI() {
         if (this._mainBox) {
-            this._item.remove_child(this._mainBox);
+            this._mainBox.destroy();
+            this._mainBox = null;
         }
 
         this._mainBox = new St.BoxLayout({vertical: true});

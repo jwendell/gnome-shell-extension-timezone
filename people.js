@@ -14,8 +14,6 @@ export class People extends Signals.EventEmitter {
         this._cancellable = null;
         this._path = this._getFilename();
         this._file = Gio.File.new_for_uri(this._path);
-        this._githubToken = this._settings.get_string('github-token').trim();
-
         this._monitor = this._file.monitor(Gio.FileMonitorFlags.NONE, null);
         this._monitorChangedId = this._monitor.connect('changed', (monitor, file, otherFile, eventType) => {
             if (eventType !== Gio.FileMonitorEvent.CHANGED)
@@ -80,9 +78,10 @@ export class People extends Signals.EventEmitter {
         }
 
         const people = [];
+        const githubToken = this._settings.get_string('github-token').trim();
         resetPeopleCount();
         for (const person of rawPeople) {
-            person._githubToken = this._githubToken;
+            person._githubToken = githubToken;
             people.push(new Person(person));
         }
         people.sort(sortByTimezone);

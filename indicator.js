@@ -170,7 +170,7 @@ class TimezoneIndicator extends PanelMenu.Button {
                     tzBox.add_child(rowBox);
                 }
                 const iconBin = new St.Bin({x_align: Clutter.ActorAlign.START});
-                const avatar = new Avatar(person);
+                const avatar = new Avatar(person, this._extension);
                 iconBin.child = avatar.actor;
                 rowBox.add_child(iconBin);
             }

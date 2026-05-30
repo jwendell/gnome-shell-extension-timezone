@@ -58,6 +58,23 @@ export default class TimezonePreferences extends ExtensionPreferences {
         });
         pathRow.add_suffix(fileButton);
 
+        // GitHub token
+        const tokenRow = new Adw.ActionRow({
+            title: _('GitHub token'),
+            subtitle: _('Raises API rate limit from 60 to 5,000 requests/hour'),
+        });
+        group.add(tokenRow);
+
+        const tokenEntry = new Gtk.PasswordEntry({
+            hexpand: true,
+            show_peek_icon: true,
+            text: settings.get_string('github-token'),
+        });
+        tokenEntry.connect('changed', () => {
+            settings.set_string('github-token', tokenEntry.text);
+        });
+        tokenRow.add_suffix(tokenEntry);
+
         // Working hours group
         const workingGroup = new Adw.PreferencesGroup({
             title: _('Working Hours'),

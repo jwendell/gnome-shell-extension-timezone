@@ -57,8 +57,9 @@ export class Person extends Signals.EventEmitter {
         const url = `https://api.github.com/users/${this.github}`;
         const message = Soup.Message.new('GET', url);
 
+        message.get_request_headers().append('User-Agent', 'timezone-gnome-shell-extension');
         if (this._githubToken)
-            message.get_request_headers().append('Authorization', `token ${this._githubToken}`);
+            message.get_request_headers().append('Authorization', `Bearer ${this._githubToken}`);
 
         session.send_and_read_async(message, GLib.PRIORITY_DEFAULT,
             null,
@@ -72,7 +73,8 @@ export class Person extends Signals.EventEmitter {
                 }
 
                 if (message.get_status() !== Soup.Status.OK) {
-                    log(`[timezone] GitHub API returned ${message.get_status()} for user ${this.github}`);
+                    const decoder = new TextDecoder('utf-8');
+                    log(`[timezone] GitHub API returned ${message.get_status()} for user ${this.github}: ${decoder.decode(bytes.get_data())}`);
                     return;
                 }
 

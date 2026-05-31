@@ -35,52 +35,45 @@ class TimezoneIndicator extends PanelMenu.Button {
         this._createWorld();
 
         this._clock = new GnomeDesktop.WallClock();
-        this._clockChangedId = this._clock.connect('notify::clock', () => this._updateTimezones());
+        this._clock.connectObject('notify::clock',
+            () => this._updateTimezones(), this);
 
-        this._settingsChangedId = this._settings.connect('changed::path-to-people-json',
-            () => this._createWorld());
+        this._settings.connectObject('changed::path-to-people-json',
+            () => this._createWorld(), this);
 
-        this._setupScreen();
-    }
-
-    destroy() {
-        if (this._clockChangedId) {
-            this._clock.disconnect(this._clockChangedId);
-            this._clockChangedId = null;
-        }
-
-        if (this._settingsChangedId) {
-            this._settings.disconnect(this._settingsChangedId);
-            this._settingsChangedId = null;
-        }
-
-        if (this._monitorChangedId) {
-            Main.layoutManager.disconnect(this._monitorChangedId);
-            this._monitorChangedId = null;
-        }
-
-        super.destroy();
-    }
-
-    _setupScreen() {
         this._screenHeight = global.screen_height;
-        this._monitorChangedId = Main.layoutManager.connect('monitors-changed', () => {
+        Main.layoutManager.connectObject('monitors-changed', () => {
             if (global.screen_height === this._screenHeight)
                 return;
             log('Resolution changed, recreating timezone UI');
             this._screenHeight = global.screen_height;
             this._createUI();
-        });
+        }, this);
+    }
+
+    destroy() {
+        this._clock.disconnectObject(this);
+        this._settings.disconnectObject(this);
+        Main.layoutManager.disconnectObject(this);
+
+        if (this._world) {
+            this._world.disconnectObject(this);
+            this._world.destroy();
+            this._world = null;
+        }
+
+        super.destroy();
     }
 
     _createWorld() {
         if (this._world) {
-            this._world.disconnect(this._worldChangedId);
+            this._world.disconnectObject(this);
+            this._world.destroy();
             this._world = null;
         }
 
         this._world = new World(this._extension);
-        this._worldChangedId = this._world.connect('changed', () => this._createUI());
+        this._world.connectObject('changed', () => this._createUI(), this);
         this._createUI();
     }
 
@@ -151,10 +144,10 @@ class TimezoneIndicator extends PanelMenu.Button {
             tz.topCityLabel = new St.Label({text: tz.topCity.toUpperCase(), style_class: 'tzi-tz-topCity', x_align: Clutter.ActorAlign.CENTER});
             tzBox.add_child(tz.topCityLabel);
 
-            const tzChangedId = tz.connect('changed', () => {
+            tz.connectObject('changed', () => {
                 tz.topCityLabel.text = tz.topCity;
-            });
-            this._tzSignalIds.push({tz, id: tzChangedId});
+            }, this);
+            this._trackedTimezones.push(tz);
 
             tzBox.add_child(new St.Label({text: tz.niceOffset, style_class: 'tzi-tz-offset', x_align: Clutter.ActorAlign.CENTER}));
 
@@ -182,11 +175,11 @@ class TimezoneIndicator extends PanelMenu.Button {
     }
 
     _createUI() {
-        if (this._tzSignalIds) {
-            for (const {tz, id} of this._tzSignalIds)
-                tz.disconnect(id);
+        if (this._trackedTimezones) {
+            for (const tz of this._trackedTimezones)
+                tz.disconnectObject(this);
         }
-        this._tzSignalIds = [];
+        this._trackedTimezones = [];
 
         if (this._mainBox) {
             this._mainBox.destroy();

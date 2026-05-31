@@ -1,5 +1,5 @@
 import GLib from 'gi://GLib';
-import Soup from 'gi://Soup?version=3.0';
+import Soup from 'gi://Soup';
 
 /**
  * Format a GLib.DateTime as a time string
@@ -70,4 +70,11 @@ export function getSharedSession() {
     if (!_sharedSession)
         _sharedSession = new Soup.Session();
     return _sharedSession;
+}
+
+export function cleanupSharedSession() {
+    if (_sharedSession) {
+        _sharedSession.abort();
+        _sharedSession = null;
+    }
 }

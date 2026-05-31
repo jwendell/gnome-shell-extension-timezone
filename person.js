@@ -1,5 +1,5 @@
 import GLib from 'gi://GLib';
-import Soup from 'gi://Soup?version=3.0';
+import Soup from 'gi://Soup';
 import * as Signals from 'resource:///org/gnome/shell/misc/signals.js';
 
 import {md5Hash, getSharedSession} from './util.js';

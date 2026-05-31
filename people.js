@@ -15,18 +15,15 @@ export class People extends Signals.EventEmitter {
         this._path = this._getFilename();
         this._file = Gio.File.new_for_uri(this._path);
         this._monitor = this._file.monitor(Gio.FileMonitorFlags.NONE, null);
-        this._monitorChangedId = this._monitor.connect('changed', (monitor, file, otherFile, eventType) => {
+        this._monitor.connectObject('changed', (monitor, file, otherFile, eventType) => {
             if (eventType !== Gio.FileMonitorEvent.CHANGED)
                 return;
             this.emit('changed');
-        });
+        }, this);
     }
 
     destroy() {
-        if (this._monitorChangedId) {
-            this._monitor.disconnect(this._monitorChangedId);
-            this._monitorChangedId = null;
-        }
+        this._monitor.disconnectObject(this);
         if (this._cancellable) {
             this._cancellable.cancel();
             this._cancellable = null;

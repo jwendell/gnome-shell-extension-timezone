@@ -4,13 +4,13 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import * as Indicator from './indicator.js';
+import {cleanupSharedSession} from './util.js';
 
 export default class TimezoneExtension extends Extension {
     constructor(metadata) {
         super(metadata);
         this._indicator = null;
         this._settings = null;
-        this._settingsChangedId = null;
     }
 
     enable() {
@@ -27,22 +27,20 @@ export default class TimezoneExtension extends Extension {
 
         // Create and add indicator
         this._indicator = new Indicator.TimezoneIndicator(this);
-        this._settingsChangedId = this._settings.connect('changed::panel-position',
-            () => this._updatePanelPosition());
+        this._settings.connectObject('changed::panel-position',
+            () => this._updatePanelPosition(), this);
         this._updatePanelPosition();
     }
 
     disable() {
-        if (this._settingsChangedId) {
-            this._settings.disconnect(this._settingsChangedId);
-            this._settingsChangedId = null;
-        }
+        this._settings.disconnectObject(this);
 
         if (this._indicator) {
             this._indicator.destroy();
             this._indicator = null;
         }
 
+        cleanupSharedSession();
         this._settings = null;
     }
 

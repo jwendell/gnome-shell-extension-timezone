@@ -12,16 +12,13 @@ export class World extends Signals.EventEmitter {
         this._extension = extension;
         this._people = new People(extension);
 
-        this._peopleChangedId = this._people.connect('changed', () => {
+        this._people.connectObject('changed', () => {
             this.emit('changed');
-        });
+        }, this);
     }
 
     destroy() {
-        if (this._peopleChangedId) {
-            this._people.disconnect(this._peopleChangedId);
-            this._peopleChangedId = null;
-        }
+        this._people.disconnectObject(this);
         this._people.destroy();
     }
 

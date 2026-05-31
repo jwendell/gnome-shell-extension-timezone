@@ -43,10 +43,10 @@ export class Timezone extends Signals.EventEmitter {
         this._people.push(person);
         this._updateTopCity();
 
-        person.connect('changed', () => {
+        person.connectObject('changed', () => {
             this._updateTopCity();
             this.emit('changed');
-        });
+        }, this);
     }
 
     getPeople() {

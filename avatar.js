@@ -29,17 +29,15 @@ export class Avatar {
         this._cache = new AvatarCache(person, extension);
 
         this._updateInfo();
-        this._changedId = this._person.connect('changed', () => this._updateInfo());
+        this._person.connectObject('changed',
+            () => this._updateInfo(), this.actor);
 
         this.actor.connect('destroy', () => this._onDestroy());
     }
 
     _onDestroy() {
         this._destroyed = true;
-        if (this._changedId) {
-            this._person.disconnect(this._changedId);
-            this._changedId = null;
-        }
+        this._person.disconnectObject(this.actor);
         this._cache = null;
     }
 
@@ -59,14 +57,11 @@ export class Avatar {
             const uri = filename.startsWith('file://') ? filename : `file://${filename}`;
             this.actor.style = `background-image: url("${uri}")`;
 
-            // Disconnect old handlers before connecting new ones
-            if (this._enterEventId)
-                this.actor.disconnect(this._enterEventId);
-            if (this._leaveEventId)
-                this.actor.disconnect(this._leaveEventId);
-
-            this._enterEventId = this.actor.connect('enter-event', () => this._onEnterEvent());
-            this._leaveEventId = this.actor.connect('leave-event', () => this._onLeaveEvent());
+            this.actor.disconnectObject(this);
+            this.actor.connectObject(
+                'enter-event', () => this._onEnterEvent(),
+                'leave-event', () => this._onLeaveEvent(),
+                this);
             this._detailBox.visible = false;
             if (this._expandBox.child)
                 this._expandBox.remove_child(this._expandBox.child);

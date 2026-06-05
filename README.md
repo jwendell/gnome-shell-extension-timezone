@@ -76,10 +76,8 @@ personal access token:
 1. Create a token at https://github.com/settings/tokens
    - No special permissions are required (public repo access is sufficient)
 2. Open the extension preferences dialog:
-   - Right-click the extension icon → Preferences
-   - Or run: `gnome-extensions prefs timezone@jwendell`
-3. Paste your token in the "GitHub Token" field
-4. Click the Apply/Close button
+   - Run `gnome-extensions prefs timezone@jwendell`
+3. Paste your token in the "GitHub Token" field and close the dialog
 
 The token is stored securely in GNOME Settings and is only used for GitHub API requests.
 
@@ -138,21 +136,3 @@ The test suite helps detect API breakages when GNOME Shell updates:
 # Or run directly with GJS
 gjs -m tests/test-runner.js
 ```
-
-### Test Coverage
-
-| Test File | Purpose |
-|-----------|---------|
-| `test-util.js` | Utility functions (time formatting, offsets, MD5) |
-| `test-timezone.js` | GLib.TimeZone and GLib.DateTime API compatibility |
-| `test-people-parsing.js` | JSON parsing and person data validation |
-| `test-gnome-apis.js` | GNOME API availability (GLib, Gio, Soup, GTK) |
-| `test-settings.js` | Settings schema validation |
-| `test-soup3-patterns.js` | Soup 3.0 async patterns, GitHub API headers, Gio.Cancellable lifecycle |
-
-Tests verify:
-- ESM imports work correctly (`gi://GLib`, `gi://Soup`)
-- GObject class registration API
-- Soup 3.0 HTTP client API (`send_and_read_async`)
-- GTK 4 widget API for preferences
-- Settings schema structure and default values

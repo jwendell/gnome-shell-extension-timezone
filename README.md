@@ -64,6 +64,23 @@ Individual fields have preference over remote providers. For instance, if you fi
 the fields `name` and `github`, we will use the name you provided, not the github
 one (although we still use github to fetch other data, like avatar and city).
 
+## GitHub Token (Optional)
+
+When using the `github` field, the extension fetches user data from GitHub's API.
+GitHub limits unauthenticated API requests to **60 per hour**. If you have many
+team members or frequently reload the extension, you may hit this limit.
+
+To increase the limit to **5000 requests per hour**, you can provide a GitHub
+personal access token:
+
+1. Create a token at https://github.com/settings/tokens
+   - No special permissions are required (public repo access is sufficient)
+2. Open the extension preferences dialog:
+   - Run `gnome-extensions prefs timezone@jwendell`
+3. Paste your token in the "GitHub Token" field and close the dialog
+
+The token is stored securely in GNOME Settings and is only used for GitHub API requests.
+
 # Development
 
 ## Tested With
@@ -102,4 +119,20 @@ gnome-extensions disable timezone@jwendell && gnome-extensions enable timezone@j
 
 # Open preferences dialog
 gnome-extensions prefs timezone@jwendell
+```
+
+
+## Running Tests
+
+The test suite helps detect API breakages when GNOME Shell updates:
+
+```bash
+# Run all tests
+./tests/run-tests.sh
+
+# Run specific test file
+./tests/run-tests.sh test-util.js
+
+# Or run directly with GJS
+gjs -m tests/test-runner.js
 ```
